@@ -1,0 +1,1673 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PyData Academy — Python for Data Analysis from Zero to Hero</title>
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Chart.js for data visualization -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+  <!-- Canvas Confetti -->
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.2/dist/confetti.browser.min.js"></script>
+
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            brand: {
+              50: '#eef2ff',
+              100: '#e0e7ff',
+              400: '#818cf8',
+              500: '#6366f1',
+              600: '#4f46e5',
+              700: '#4338ca',
+              900: '#1e1b4b'
+            },
+            slate: {
+              850: '#151e2e',
+              900: '#0f172a',
+              950: '#080d1a'
+            }
+          },
+          fontFamily: {
+            sans: ['Inter', 'system-ui', '-apple-system', 'sans-serif'],
+            mono: ['JetBrains Mono', 'Fira Code', 'Courier New', 'monospace']
+          }
+        }
+      }
+    };
+  </script>
+
+  <style>
+    /* Custom Scrollbar */
+    ::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    ::-webkit-scrollbar-track {
+      background: rgba(15, 23, 42, 0.6);
+    }
+    ::-webkit-scrollbar-thumb {
+      background: rgba(99, 102, 241, 0.4);
+      border-radius: 4px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: rgba(99, 102, 241, 0.7);
+    }
+
+    .callout {
+      border-left-width: 4px;
+      padding: 1rem;
+      border-radius: 0.5rem;
+      margin-top: 1rem;
+      margin-bottom: 1rem;
+    }
+    .callout-info {
+      border-color: #6366f1;
+      background-color: rgba(99, 102, 241, 0.1);
+      color: #e0e7ff;
+    }
+    .callout-success {
+      border-color: #10b981;
+      background-color: rgba(16, 185, 129, 0.1);
+      color: #d1fae5;
+    }
+    .callout-warning {
+      border-color: #f59e0b;
+      background-color: rgba(245, 158, 11, 0.1);
+      color: #fef3c7;
+    }
+
+    /* Light mode callouts */
+    html:not(.dark) .callout-info {
+      background-color: #eff6ff;
+      color: #1e3a8a;
+    }
+    html:not(.dark) .callout-success {
+      background-color: #ecfdf5;
+      color: #065f46;
+    }
+    html:not(.dark) .callout-warning {
+      background-color: #fffbeb;
+      color: #92400e;
+    }
+  </style>
+</head>
+<body class="bg-slate-950 text-slate-100 antialiased min-h-screen flex flex-col transition-colors duration-200">
+
+  <!-- ================= TOP NAVIGATION BAR ================= -->
+  <header class="sticky top-0 z-40 w-full border-b border-slate-800 bg-slate-900/90 backdrop-blur-md px-4 py-3 flex items-center justify-between shadow-sm">
+    <div class="flex items-center space-x-3">
+      <!-- Mobile sidebar toggle -->
+      <button id="mobileMenuBtn" aria-label="Toggle navigation menu" class="lg:hidden p-2 text-slate-400 hover:text-white rounded-lg hover:bg-slate-800 focus:outline-none">
+        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path></svg>
+      </button>
+
+      <!-- Logo & Brand -->
+      <a href="#" id="brandLogoBtn" class="flex items-center space-x-2.5 group">
+        <div class="w-9 h-9 rounded-xl bg-gradient-to-tr from-brand-600 via-indigo-500 to-emerald-400 flex items-center justify-center shadow-lg shadow-indigo-500/20 group-hover:scale-105 transition-transform">
+          <svg class="w-5 h-5 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" />
+          </svg>
+        </div>
+        <div>
+          <span class="text-base font-bold bg-gradient-to-r from-white via-indigo-200 to-indigo-400 bg-clip-text text-transparent">PyData Academy</span>
+          <span class="hidden sm:inline-block ml-1.5 px-2 py-0.5 text-[10px] uppercase tracking-wider font-semibold bg-indigo-500/10 text-indigo-400 border border-indigo-500/20 rounded-full">Pro Edition</span>
+        </div>
+      </a>
+    </div>
+
+    <!-- Center navigation tabs -->
+    <nav class="hidden md:flex items-center space-x-1 bg-slate-800/60 p-1 rounded-xl border border-slate-700/60 text-sm">
+      <button id="navTabLessons" class="px-3.5 py-1.5 rounded-lg font-medium text-white bg-brand-600 shadow-sm transition-all flex items-center space-x-1.5">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path></svg>
+        <span>Curriculum</span>
+      </button>
+      <button id="navTabPlayground" class="px-3.5 py-1.5 rounded-lg font-medium text-slate-300 hover:text-white hover:bg-slate-700/50 transition-all flex items-center space-x-1.5">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4"></path></svg>
+        <span>Playground</span>
+      </button>
+      <button id="navTabProjects" class="px-3.5 py-1.5 rounded-lg font-medium text-slate-300 hover:text-white hover:bg-slate-700/50 transition-all flex items-center space-x-1.5">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path></svg>
+        <span>Projects</span>
+      </button>
+      <button id="navTabCheatsheet" class="px-3.5 py-1.5 rounded-lg font-medium text-slate-300 hover:text-white hover:bg-slate-700/50 transition-all flex items-center space-x-1.5">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path></svg>
+        <span>Cheatsheet</span>
+      </button>
+    </nav>
+
+    <!-- Right utility controls: Search, Progress bar, Theme toggle -->
+    <div class="flex items-center space-x-2.5">
+      <!-- Search button -->
+      <button id="searchOpenBtn" class="flex items-center space-x-2 px-3 py-1.5 text-xs font-medium text-slate-400 bg-slate-800/80 hover:bg-slate-700/80 border border-slate-700/70 rounded-lg transition-all focus:outline-none">
+        <svg class="w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+        <span class="hidden sm:inline">Search topics...</span>
+        <kbd class="hidden sm:inline-block px-1.5 py-0.5 text-[10px] bg-slate-900 border border-slate-700 rounded text-slate-400">⌘K</kbd>
+      </button>
+
+      <!-- Overall progress indicator -->
+      <div class="hidden xl:flex items-center space-x-2.5 px-3 py-1 bg-slate-800/50 border border-slate-800 rounded-lg">
+        <div class="text-xs text-slate-300 font-medium"><span id="topProgressText">0%</span></div>
+        <div class="w-20 bg-slate-700 rounded-full h-2 overflow-hidden">
+          <div id="topProgressBar" class="bg-gradient-to-r from-brand-500 to-emerald-400 h-2 rounded-full transition-all duration-500" style="width: 0%"></div>
+        </div>
+      </div>
+
+      <!-- Theme toggle -->
+      <button id="themeToggleBtn" aria-label="Toggle light/dark theme" class="p-2 text-slate-400 hover:text-white rounded-lg hover:bg-slate-800 focus:outline-none transition-colors">
+        <svg id="themeIconDark" class="w-5 h-5 hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 9H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"></path></svg>
+        <svg id="themeIconLight" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"></path></svg>
+      </button>
+    </div>
+  </header>
+
+  <!-- ================= MAIN LAYOUT WITH SIDEBAR & CONTENT ================= -->
+  <div class="flex-1 flex overflow-hidden">
+
+    <!-- SIDEBAR: LEARNING PATH TREE -->
+    <aside id="sidebarDrawer" class="fixed inset-y-0 left-0 z-30 w-80 bg-slate-900 border-r border-slate-800 flex flex-col transform -translate-x-full lg:translate-x-0 lg:static transition-transform duration-200 ease-in-out">
+      
+      <!-- Learning Path Header -->
+      <div class="p-4 border-b border-slate-800 flex items-center justify-between">
+        <div>
+          <h2 class="text-xs uppercase font-bold tracking-wider text-slate-400">Curriculum Path</h2>
+          <p class="text-sm font-semibold text-white mt-0.5">Python Data Stack</p>
+        </div>
+        <button id="closeMobileSidebar" aria-label="Close sidebar" class="lg:hidden p-1.5 text-slate-400 hover:text-white rounded-lg hover:bg-slate-800">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+        </button>
+      </div>
+
+      <!-- Quick Progress Widget -->
+      <div class="px-4 py-3 bg-slate-950/50 border-b border-slate-800/80">
+        <div class="flex items-center justify-between text-xs mb-1.5">
+          <span class="text-slate-400">Course Progress</span>
+          <span id="sidebarProgressPct" class="font-bold text-emerald-400">0%</span>
+        </div>
+        <div class="w-full bg-slate-800 rounded-full h-2 overflow-hidden mb-2">
+          <div id="sidebarProgressBar" class="bg-gradient-to-r from-indigo-500 to-emerald-400 h-2 rounded-full transition-all duration-300" style="width: 0%"></div>
+        </div>
+        <div class="flex items-center justify-between text-[11px] text-slate-400">
+          <span><span id="completedLessonsCount">0</span>/23 Completed</span>
+          <button id="resetProgressBtn" class="text-slate-400 hover:text-rose-400 hover:underline transition-colors">Reset</button>
+        </div>
+      </div>
+
+      <!-- Module & Lesson List Navigation -->
+      <div id="moduleNavList" class="flex-1 overflow-y-auto p-3 space-y-2.5">
+        <!-- Dynamically rendered by JS -->
+      </div>
+
+      <!-- Sidebar Footer -->
+      <div class="p-3 border-t border-slate-800 bg-slate-950/40 text-xs text-slate-400 flex items-center justify-between">
+        <button id="viewCertificateBtn" class="flex items-center space-x-1.5 hover:text-indigo-300 transition-colors">
+          <svg class="w-4 h-4 text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z"></path></svg>
+          <span>Certificate Status</span>
+        </button>
+        <span class="text-[10px] text-slate-400">v2.4.0</span>
+      </div>
+    </aside>
+
+    <!-- Mobile sidebar overlay backdrop -->
+    <div id="sidebarBackdrop" class="fixed inset-0 bg-slate-950/70 backdrop-blur-sm z-20 hidden lg:hidden"></div>
+
+    <!-- MAIN SCROLLABLE CONTENT -->
+    <main class="flex-1 overflow-y-auto bg-slate-950 px-4 py-6 lg:px-8 max-w-7xl mx-auto w-full">
+
+      <!-- ================= VIEW 1: LESSON VIEW ================= -->
+      <section id="viewLesson" class="space-y-8">
+        
+        <!-- Lesson Header Card -->
+        <div class="bg-slate-900 border border-slate-800 rounded-2xl p-6 shadow-sm">
+          <div class="flex flex-wrap items-center justify-between gap-3 mb-3">
+            <div class="flex items-center space-x-2">
+              <span id="lessonModuleBadge" class="text-xs font-semibold px-2.5 py-1 bg-indigo-500/10 text-indigo-400 border border-indigo-500/20 rounded-md">Module 1</span>
+              <span id="lessonDifficultyBadge" class="text-xs font-semibold px-2.5 py-1 bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 rounded-md">Beginner</span>
+              <span id="lessonDurationBadge" class="text-xs text-slate-400 flex items-center space-x-1">
+                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                <span id="lessonDurationText">15 min</span>
+              </span>
+            </div>
+
+            <!-- Complete toggle button -->
+            <button id="toggleCompleteLessonBtn" class="flex items-center space-x-2 px-3.5 py-1.5 rounded-lg text-xs font-medium border border-slate-700 bg-slate-800 hover:bg-slate-700 text-slate-200 transition-all">
+              <svg id="completeCheckIcon" class="w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+              <span id="completeBtnText">Mark as Completed</span>
+            </button>
+          </div>
+
+          <h1 id="lessonTitle" class="text-2xl sm:text-3xl font-extrabold text-white tracking-tight">Lesson Title</h1>
+          <p id="lessonSummary" class="text-sm sm:text-base text-slate-400 mt-2 leading-relaxed">Lesson overview summary text.</p>
+        </div>
+
+        <!-- Lesson Explanatory Content -->
+        <article id="lessonBody" class="prose prose-invert max-w-none text-slate-300 leading-relaxed space-y-4">
+          <!-- Populated dynamically -->
+        </article>
+
+        <!-- Practical Code Example Card -->
+        <div class="bg-slate-900 border border-slate-800 rounded-2xl overflow-hidden shadow-sm">
+          <div class="bg-slate-850 px-4 py-3 border-b border-slate-800 flex items-center justify-between">
+            <div class="flex items-center space-x-2">
+              <span class="w-3 h-3 rounded-full bg-rose-500/80 inline-block"></span>
+              <span class="w-3 h-3 rounded-full bg-amber-500/80 inline-block"></span>
+              <span class="w-3 h-3 rounded-full bg-emerald-500/80 inline-block"></span>
+              <span class="text-xs font-mono text-slate-400 ml-2 font-medium">example.py</span>
+            </div>
+            <div class="flex items-center space-x-2">
+              <button id="copyExampleCodeBtn" class="px-2.5 py-1 rounded bg-slate-800 hover:bg-slate-700 text-xs text-slate-300 hover:text-white transition-all flex items-center space-x-1">
+                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"></path></svg>
+                <span>Copy Code</span>
+              </button>
+              <button id="sendToPlaygroundBtn" class="px-3 py-1 rounded bg-indigo-600 hover:bg-indigo-500 text-xs font-medium text-white transition-all flex items-center space-x-1 shadow-sm">
+                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                <span>Run in Playground</span>
+              </button>
+            </div>
+          </div>
+          <div class="p-4 bg-slate-950 font-mono text-xs sm:text-sm text-indigo-200 overflow-x-auto leading-relaxed">
+            <pre><code id="lessonExampleCode"># Python code example</code></pre>
+          </div>
+        </div>
+
+        <!-- Hands-On Interactive Coding Exercise -->
+        <div class="bg-gradient-to-b from-slate-900 to-slate-950 border border-slate-800 rounded-2xl p-6 shadow-sm">
+          <div class="flex items-center space-x-2 text-indigo-400 font-bold text-sm uppercase tracking-wider mb-2">
+            <svg class="w-5 h-5 text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
+            <span>Hands-on Challenge</span>
+          </div>
+          <h2 class="text-xl font-bold text-white mb-2">Exercise Challenge</h2>
+          <p id="exercisePrompt" class="text-sm text-slate-300 leading-relaxed mb-4">Prompt description</p>
+
+          <!-- Exercise Code Editor -->
+          <div class="border border-slate-800 rounded-xl overflow-hidden mb-4">
+            <div class="bg-slate-850 px-4 py-2 border-b border-slate-800 flex items-center justify-between text-xs text-slate-400">
+              <span>Your Solution (Python)</span>
+              <div class="flex items-center space-x-3">
+                <button id="showHintBtn" class="hover:text-amber-400 transition-colors flex items-center space-x-1">
+                  <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"></path></svg>
+                  <span>Hint</span>
+                </button>
+                <button id="showSolutionBtn" class="hover:text-indigo-400 transition-colors">Show Solution</button>
+                <button id="resetExerciseBtn" class="hover:text-rose-400 transition-colors">Reset</button>
+              </div>
+            </div>
+            <textarea id="exerciseCodeInput" rows="7" spellcheck="false" class="w-full bg-slate-950 p-4 font-mono text-xs sm:text-sm text-slate-200 focus:outline-none focus:ring-1 focus:ring-brand-500 leading-relaxed resize-y"></textarea>
+          </div>
+
+          <!-- Hint & Solution Accordions -->
+          <div id="exerciseHintBox" class="hidden p-3.5 bg-amber-500/10 border border-amber-500/20 rounded-xl text-xs text-amber-200 mb-4 leading-relaxed">
+            <strong>Hint:</strong> <span id="exerciseHintText"></span>
+          </div>
+
+          <div id="exerciseSolutionBox" class="hidden p-3.5 bg-indigo-500/10 border border-indigo-500/20 rounded-xl text-xs text-indigo-200 mb-4 font-mono leading-relaxed overflow-x-auto">
+            <div class="font-bold mb-1 text-indigo-300">Reference Solution:</div>
+            <pre><code id="exerciseSolutionText"></code></pre>
+          </div>
+
+          <!-- Run Exercise Button & Output Status -->
+          <div class="flex flex-wrap items-center justify-between gap-3">
+            <button id="runExerciseBtn" class="px-5 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-medium text-xs sm:text-sm flex items-center space-x-2 shadow-lg shadow-emerald-600/20 transition-all">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"></path></svg>
+              <span>Test Solution</span>
+            </button>
+            <div id="exerciseResultBadge" class="hidden text-xs font-semibold px-3 py-1.5 rounded-lg"></div>
+          </div>
+
+          <!-- Exercise Output Terminal -->
+          <div id="exerciseOutputContainer" class="hidden mt-4 bg-slate-950 border border-slate-800 rounded-xl p-3.5 font-mono text-xs text-slate-300 overflow-x-auto">
+            <div class="text-[11px] text-slate-400 mb-1 border-b border-slate-800 pb-1 font-semibold">Test Output:</div>
+            <pre id="exerciseOutputText" class="whitespace-pre-wrap"></pre>
+          </div>
+        </div>
+
+        <!-- Concept Knowledge Check Quiz Card -->
+        <div class="bg-slate-900 border border-slate-800 rounded-2xl p-6 shadow-sm">
+          <div class="flex items-center space-x-2 text-amber-400 font-bold text-xs uppercase tracking-wider mb-2">
+            <svg class="w-4 h-4 text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+            <span>Quick Quiz Check</span>
+          </div>
+          <h2 id="quizQuestion" class="text-base sm:text-lg font-bold text-white mb-4">Quiz Question Title</h2>
+
+          <!-- Quiz Options -->
+          <div id="quizOptionsList" class="space-y-2.5 mb-4">
+            <!-- Dynamically populated buttons -->
+          </div>
+
+          <!-- Quiz Feedback Box -->
+          <div id="quizFeedbackBox" class="hidden p-4 rounded-xl text-xs sm:text-sm leading-relaxed border"></div>
+        </div>
+
+        <!-- Navigation Buttons: Previous & Next Lesson -->
+        <div class="pt-4 border-t border-slate-800 flex items-center justify-between">
+          <button id="prevLessonBtn" class="px-4 py-2 rounded-xl border border-slate-800 bg-slate-900 hover:bg-slate-800 text-slate-300 text-xs sm:text-sm font-medium flex items-center space-x-2 transition-all">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path></svg>
+            <span class="hidden sm:inline">Previous Lesson</span>
+            <span class="sm:hidden">Prev</span>
+          </button>
+          <button id="nextLessonBtn" class="px-5 py-2.5 rounded-xl bg-brand-600 hover:bg-brand-500 text-white text-xs sm:text-sm font-medium flex items-center space-x-2 shadow-lg shadow-brand-600/20 transition-all">
+            <span class="hidden sm:inline">Next Lesson</span>
+            <span class="sm:hidden">Next</span>
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
+          </button>
+        </div>
+
+      </section>
+
+      <!-- ================= VIEW 2: INTERACTIVE PLAYGROUND ================= -->
+      <section id="viewPlayground" class="hidden space-y-6">
+        <div class="bg-slate-900 border border-slate-800 rounded-2xl p-6 shadow-sm">
+          <div class="flex flex-wrap items-center justify-between gap-3 mb-2">
+            <div>
+              <h2 class="text-2xl font-bold text-white">Interactive Python Playground</h2>
+              <p class="text-sm text-slate-400 mt-1">Execute Python scripts, manipulate datasets with NumPy and pandas, and render dynamic visualizations.</p>
+            </div>
+            
+            <!-- Quick Demo Snippet Selector -->
+            <div class="flex items-center space-x-2">
+              <label for="demoSnippetSelect" class="text-xs text-slate-400">Load Template:</label>
+              <select id="demoSnippetSelect" class="bg-slate-800 text-slate-200 text-xs rounded-lg border border-slate-700 px-3 py-1.5 focus:outline-none focus:ring-1 focus:ring-brand-500">
+                <option value="">-- Choose preset template --</option>
+                <option value="numpy_matrix">NumPy: Vectorized Matrix Operations</option>
+                <option value="pandas_churn">pandas: Customer Churn Data Wrangling</option>
+                <option value="matplotlib_chart">Matplotlib: Monthly Growth Multi-Line Plot</option>
+                <option value="seaborn_dist">Seaborn: Statistical Distribution & Outliers</option>
+                <option value="sklearn_model">scikit-learn: Random Forest Classification</option>
+                <option value="kmeans_cluster">scikit-learn: Customer RFM Clustering</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <!-- Playground Editor + Output split container -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          
+          <!-- Code Editor Panel -->
+          <div class="bg-slate-900 border border-slate-800 rounded-2xl overflow-hidden flex flex-col h-[560px] shadow-sm">
+            <div class="bg-slate-850 px-4 py-2.5 border-b border-slate-800 flex items-center justify-between">
+              <div class="flex items-center space-x-2 text-xs font-mono text-slate-300">
+                <span class="w-3 h-3 rounded-full bg-indigo-500 inline-block"></span>
+                <span>script.py</span>
+                <span id="engineBadge" class="ml-2 text-[10px] px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">Analytics Engine</span>
+              </div>
+              <div class="flex items-center space-x-2">
+                <button id="clearCodeBtn" class="text-xs text-slate-400 hover:text-rose-400 transition-colors">Clear</button>
+                <button id="copyPlaygroundCodeBtn" class="text-xs text-slate-400 hover:text-white transition-colors">Copy</button>
+              </div>
+            </div>
+
+            <!-- Textarea Editor -->
+            <div class="flex-1 relative bg-slate-950 p-2">
+              <textarea id="playgroundCode" spellcheck="false" class="w-full h-full bg-transparent p-2 font-mono text-xs sm:text-sm text-slate-100 focus:outline-none resize-none leading-relaxed" placeholder="# Write or paste Python code here..."></textarea>
+            </div>
+
+            <!-- Editor Action Bar -->
+            <div class="p-3 bg-slate-850 border-t border-slate-800 flex items-center justify-between">
+              <span class="text-[11px] text-slate-400">Press <kbd class="px-1.5 py-0.5 bg-slate-800 border border-slate-700 rounded text-slate-300">Ctrl+Enter</kbd> to Run</span>
+              <button id="runPlaygroundBtn" class="px-5 py-2 bg-gradient-to-r from-brand-600 to-indigo-600 hover:from-brand-500 hover:to-indigo-500 text-white font-medium text-xs sm:text-sm rounded-xl flex items-center space-x-2 shadow-lg shadow-indigo-600/25 transition-all">
+                <svg class="w-4 h-4 text-emerald-300" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z" clip-rule="evenodd"></path></svg>
+                <span>Run Script</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- Output Results Panel -->
+          <div class="bg-slate-900 border border-slate-800 rounded-2xl overflow-hidden flex flex-col h-[560px] shadow-sm">
+            <!-- Output Tabs -->
+            <div class="bg-slate-850 px-4 py-2 border-b border-slate-800 flex items-center justify-between">
+              <div class="flex space-x-2 text-xs">
+                <button id="tabOutputConsole" class="px-3 py-1 rounded-md bg-slate-800 font-medium text-white border border-slate-700 flex items-center space-x-1.5">
+                  <svg class="w-3.5 h-3.5 text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 9l3 3-3 3m5 0h3"></path></svg>
+                  <span>Console</span>
+                </button>
+                <button id="tabOutputTable" class="px-3 py-1 rounded-md text-slate-400 hover:text-white font-medium flex items-center space-x-1.5 transition-colors">
+                  <svg class="w-3.5 h-3.5 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M3 14h18m-9-4v8m-7 0h14a2 2 0 002-2V6a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"></path></svg>
+                  <span>Data Table</span>
+                </button>
+                <button id="tabOutputPlot" class="px-3 py-1 rounded-md text-slate-400 hover:text-white font-medium flex items-center space-x-1.5 transition-colors">
+                  <svg class="w-3.5 h-3.5 text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 12l3-3 3 3 4-4M8 21l4-4 4 4M3 4h18M4 4h16v12a1 1 0 01-1 1H5a1 1 0 01-1-1V4z"></path></svg>
+                  <span>Visual Chart</span>
+                </button>
+              </div>
+              <button id="clearOutputBtn" class="text-xs text-slate-400 hover:text-slate-200">Clear</button>
+            </div>
+
+            <!-- Tab 1: Terminal Console Output -->
+            <div id="contentOutputConsole" class="flex-1 bg-slate-950 p-4 font-mono text-xs text-slate-200 overflow-y-auto whitespace-pre-wrap leading-relaxed">
+              <span class="text-slate-400"># Output terminal ready. Click "Run Script" or press Ctrl+Enter to execute.</span>
+            </div>
+
+            <!-- Tab 2: Interactive Data Table -->
+            <div id="contentOutputTable" class="hidden flex-1 bg-slate-950 p-4 overflow-auto">
+              <div id="dataTablePlaceholder" class="text-xs text-slate-400 font-mono">No active pandas DataFrame to display. Run a script with tabular data to preview rows.</div>
+              <div id="dataTableView" class="hidden"></div>
+            </div>
+
+            <!-- Tab 3: Visual Chart Canvas -->
+            <div id="contentOutputPlot" class="hidden flex-1 bg-slate-950 p-4 flex flex-col justify-center items-center relative">
+              <div id="plotPlaceholder" class="text-xs text-slate-400 font-mono text-center">
+                <svg class="w-12 h-12 text-slate-700 mx-auto mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path></svg>
+                <span>No plot generated yet. Run visualization code or load the Matplotlib/Seaborn preset.</span>
+              </div>
+              <div id="chartContainer" class="w-full h-full relative hidden min-h-[300px]">
+                <canvas id="playgroundChartCanvas"></canvas>
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </section>
+
+      <!-- ================= VIEW 3: CAPSTONE PROJECTS ================= -->
+      <section id="viewProjects" class="hidden space-y-8">
+        <div class="bg-slate-900 border border-slate-800 rounded-2xl p-6 shadow-sm">
+          <div class="flex items-center space-x-2 text-indigo-400 text-xs font-bold uppercase tracking-wider mb-1">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path></svg>
+            <span>Real-World Case Studies</span>
+          </div>
+          <h2 class="text-2xl sm:text-3xl font-extrabold text-white">Full-Stack Data Science Capstones</h2>
+          <p class="text-sm text-slate-400 mt-2 max-w-3xl leading-relaxed">Synthesize NumPy, pandas, Matplotlib, Seaborn, and scikit-learn into cohesive end-to-end industry solutions.</p>
+        </div>
+
+        <div id="projectsGrid" class="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <!-- Dynamically populated project cards -->
+        </div>
+
+        <!-- Project Detail In-page view -->
+        <div id="projectDetailContainer" class="hidden bg-slate-900 border border-slate-800 rounded-2xl p-6 space-y-6">
+          <div class="flex items-center justify-between border-b border-slate-800 pb-4">
+            <div>
+              <span id="projectDetailBadge" class="text-xs px-2.5 py-1 bg-indigo-500/10 text-indigo-400 border border-indigo-500/20 rounded-md font-semibold">Capstone 1</span>
+              <h3 id="projectDetailTitle" class="text-xl sm:text-2xl font-bold text-white mt-2">Project Title</h3>
+            </div>
+            <button id="closeProjectDetailBtn" aria-label="Close project view" class="p-2 text-slate-400 hover:text-white rounded-lg hover:bg-slate-800">
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+            </button>
+          </div>
+          <div id="projectDetailContent" class="text-sm text-slate-300 space-y-4 leading-relaxed"></div>
+          
+          <div class="border border-slate-800 rounded-xl overflow-hidden">
+            <div class="bg-slate-850 px-4 py-2 border-b border-slate-800 flex items-center justify-between text-xs text-slate-400">
+              <span class="font-mono">pipeline.py</span>
+              <button id="runProjectInPlaygroundBtn" class="px-3 py-1 bg-indigo-600 hover:bg-indigo-500 text-white rounded font-medium transition-all">Open in Playground</button>
+            </div>
+            <pre class="bg-slate-950 p-4 font-mono text-xs text-indigo-200 overflow-x-auto"><code id="projectDetailCode"></code></pre>
+          </div>
+        </div>
+      </section>
+
+      <!-- ================= VIEW 4: CHEATSHEETS & REFERENCE ================= -->
+      <section id="viewCheatsheet" class="hidden space-y-6">
+        <div class="bg-slate-900 border border-slate-800 rounded-2xl p-6 shadow-sm">
+          <h2 class="text-2xl sm:text-3xl font-extrabold text-white">Python Data Stack Quick Reference</h2>
+          <p class="text-sm text-slate-400 mt-2">Curated, syntax-checked cheatsheets for day-to-day data analytics and machine learning workflows.</p>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+          
+          <!-- NumPy Cheatsheet -->
+          <div class="bg-slate-900 border border-slate-800 rounded-2xl p-5 shadow-sm">
+            <div class="flex items-center space-x-2 text-indigo-400 font-bold mb-3">
+              <span class="w-2.5 h-2.5 rounded-full bg-indigo-500"></span>
+              <h3 class="text-lg text-white font-bold">NumPy Essentials</h3>
+            </div>
+            <div class="space-y-2 text-xs font-mono text-slate-300">
+              <div class="p-2 bg-slate-950 rounded border border-slate-800/80"><code>np.array([1, 2, 3], dtype=np.float32)</code></div>
+              <div class="p-2 bg-slate-950 rounded border border-slate-800/80"><code>np.arange(0, 100, 5) # start, stop, step</code></div>
+              <div class="p-2 bg-slate-950 rounded border border-slate-800/80"><code>np.linspace(0.0, 1.0, 100) # evenly spaced</code></div>
+              <div class="p-2 bg-slate-950 rounded border border-slate-800/80"><code>arr[arr > threshold] # Boolean filtering</code></div>
+              <div class="p-2 bg-slate-950 rounded border border-slate-800/80"><code>np.sum(matrix, axis=0) # Column sums</code></div>
+              <div class="p-2 bg-slate-950 rounded border border-slate-800/80"><code>A @ B # Matrix multiplication</code></div>
+            </div>
+          </div>
+
+          <!-- pandas Cheatsheet -->
+          <div class="bg-slate-900 border border-slate-800 rounded-2xl p-5 shadow-sm">
+            <div class="flex items-center space-x-2 text-emerald-400 font-bold mb-3">
+              <span class="w-2.5 h-2.5 rounded-full bg-emerald-500"></span>
+              <h3 class="text-lg text-white font-bold">pandas Essentials</h3>
+            </div>
+            <div class="space-y-2 text-xs font-mono text-slate-300">
+              <div class="p-2 bg-slate-950 rounded border border-slate-800/80"><code>df.loc[row_label, col_label] # Label based</code></div>
+              <div class="p-2 bg-slate-950 rounded border border-slate-800/80"><code>df.iloc[0:10, 0:3] # Position based</code></div>
+              <div class="p-2 bg-slate-950 rounded border border-slate-800/80"><code>df['val'].fillna(df['val'].median())</code></div>
+              <div class="p-2 bg-slate-950 rounded border border-slate-800/80"><code>df.groupby(['cat'])['sales'].agg(['mean', 'sum'])</code></div>
+              <div class="p-2 bg-slate-950 rounded border border-slate-800/80"><code>pd.merge(orders, users, on='id', how='left')</code></div>
+              <div class="p-2 bg-slate-950 rounded border border-slate-800/80"><code>df.drop_duplicates(subset=['user_id'])</code></div>
+            </div>
+          </div>
+
+          <!-- Matplotlib & Seaborn Cheatsheet -->
+          <div class="bg-slate-900 border border-slate-800 rounded-2xl p-5 shadow-sm">
+            <div class="flex items-center space-x-2 text-amber-400 font-bold mb-3">
+              <span class="w-2.5 h-2.5 rounded-full bg-amber-500"></span>
+              <h3 class="text-lg text-white font-bold">Matplotlib & Seaborn</h3>
+            </div>
+            <div class="space-y-2 text-xs font-mono text-slate-300">
+              <div class="p-2 bg-slate-950 rounded border border-slate-800/80"><code>fig, ax = plt.subplots(figsize=(8, 4))</code></div>
+              <div class="p-2 bg-slate-950 rounded border border-slate-800/80"><code>ax.plot(x, y, label='Metric', color='#4f46e5')</code></div>
+              <div class="p-2 bg-slate-950 rounded border border-slate-800/80"><code>sns.histplot(data=df, x='val', kde=True)</code></div>
+              <div class="p-2 bg-slate-950 rounded border border-slate-800/80"><code>sns.boxplot(data=df, x='tier', y='spend')</code></div>
+              <div class="p-2 bg-slate-950 rounded border border-slate-800/80"><code>sns.heatmap(df.corr(), annot=True, cmap='coolwarm')</code></div>
+              <div class="p-2 bg-slate-950 rounded border border-slate-800/80"><code>plt.tight_layout()</code></div>
+            </div>
+          </div>
+
+          <!-- scikit-learn Cheatsheet -->
+          <div class="bg-slate-900 border border-slate-800 rounded-2xl p-5 shadow-sm">
+            <div class="flex items-center space-x-2 text-rose-400 font-bold mb-3">
+              <span class="w-2.5 h-2.5 rounded-full bg-rose-500"></span>
+              <h3 class="text-lg text-white font-bold">scikit-learn Essentials</h3>
+            </div>
+            <div class="space-y-2 text-xs font-mono text-slate-300">
+              <div class="p-2 bg-slate-950 rounded border border-slate-800/80"><code>X_train, X_test, y_train, y_test = train_test_split(X, y)</code></div>
+              <div class="p-2 bg-slate-950 rounded border border-slate-800/80"><code>scaler.fit_transform(X_train); scaler.transform(X_test)</code></div>
+              <div class="p-2 bg-slate-950 rounded border border-slate-800/80"><code>model.fit(X_train, y_train)</code></div>
+              <div class="p-2 bg-slate-950 rounded border border-slate-800/80"><code>y_pred = model.predict(X_test)</code></div>
+              <div class="p-2 bg-slate-950 rounded border border-slate-800/80"><code>classification_report(y_test, y_pred)</code></div>
+              <div class="p-2 bg-slate-950 rounded border border-slate-800/80"><code>kmeans = KMeans(n_clusters=3).fit(X)</code></div>
+            </div>
+          </div>
+
+        </div>
+      </section>
+
+    </main>
+  </div>
+
+  <!-- ================= SEARCH MODAL (CMD+K) ================= -->
+  <div id="searchModal" class="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-sm hidden flex items-start justify-center pt-16 px-4">
+    <div class="bg-slate-900 border border-slate-800 w-full max-w-xl rounded-2xl shadow-2xl overflow-hidden flex flex-col max-h-[80vh]">
+      <!-- Search Input Header -->
+      <div class="p-4 border-b border-slate-800 flex items-center space-x-3">
+        <svg class="w-5 h-5 text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+        <input id="searchInput" type="text" placeholder="Search lessons, concepts, pandas methods, algorithms..." class="w-full bg-transparent text-sm sm:text-base text-white placeholder-slate-400 focus:outline-none" />
+        <button id="closeSearchModalBtn" class="text-xs text-slate-400 hover:text-white px-2 py-1 bg-slate-800 rounded">ESC</button>
+      </div>
+
+      <!-- Search Results List -->
+      <div id="searchResultsList" class="p-3 overflow-y-auto space-y-1.5 flex-1 divide-y divide-slate-800/50">
+        <div class="text-center py-8 text-xs text-slate-400">Type keywords to search across 23 lessons, code examples, and cheat sheets.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ================= CERTIFICATE MODAL ================= -->
+  <div id="certificateModal" class="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-sm hidden flex items-center justify-center p-4">
+    <div class="bg-slate-900 border border-slate-800 max-w-lg w-full rounded-2xl p-6 shadow-2xl text-center space-y-4">
+      <div class="w-16 h-16 rounded-full bg-gradient-to-tr from-amber-400 to-amber-600 mx-auto flex items-center justify-center shadow-lg shadow-amber-500/20">
+        <svg class="w-8 h-8 text-slate-950" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z"></path></svg>
+      </div>
+      <h3 class="text-xl font-bold text-white">Course Completion Status</h3>
+      <p id="certStatusMessage" class="text-xs sm:text-sm text-slate-300 leading-relaxed">
+        Complete all 23 lessons, exercises, and quizzes to unlock your verified Data Analyst certificate.
+      </p>
+      <div class="p-3 bg-slate-950 rounded-xl border border-slate-800 text-xs text-slate-400 flex justify-around">
+        <div>Lessons: <strong id="certLessonsMetric" class="text-white">0/23</strong></div>
+        <div>Quizzes: <strong id="certQuizMetric" class="text-white">0/23</strong></div>
+        <div>Completion: <strong id="certPctMetric" class="text-emerald-400">0%</strong></div>
+      </div>
+      <button id="closeCertModalBtn" class="w-full py-2 bg-slate-800 hover:bg-slate-700 text-white rounded-xl text-xs font-semibold transition-all">Close</button>
+    </div>
+  </div>
+
+  <!-- ================= RESET PROGRESS CONFIRMATION MODAL ================= -->
+  <div id="resetModal" class="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-sm hidden flex items-center justify-center p-4">
+    <div class="bg-slate-900 border border-slate-800 max-w-sm w-full rounded-2xl p-6 shadow-2xl text-center space-y-4">
+      <div class="w-12 h-12 rounded-full bg-rose-500/10 text-rose-400 mx-auto flex items-center justify-center border border-rose-500/20">
+        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
+      </div>
+      <h3 class="text-base font-bold text-white">Reset Course Progress?</h3>
+      <p class="text-xs text-slate-400 leading-relaxed">This will reset all your completed lesson checkmarks, exercise solutions, and quiz answers.</p>
+      <div class="flex space-x-3 pt-2">
+        <button id="cancelResetBtn" class="flex-1 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-xs font-medium text-slate-300">Cancel</button>
+        <button id="confirmResetBtn" class="flex-1 py-2 rounded-xl bg-rose-600 hover:bg-rose-500 text-xs font-medium text-white shadow-lg shadow-rose-600/20">Yes, Reset</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ================= EMBEDDED JAVASCRIPT LOGIC ================= -->
+  <script>
+    // --- 1. Load Curriculum Data ---
+    const CURRICULUM = [{"id": "module-1", "title": "Module 1: Python Fundamentals for Data Analysis", "badge": "Beginner", "lessons": [{"id": "m1-l1", "title": "1.1 Core Types, Variables & Type Casting", "duration": "12 min", "difficulty": "Beginner", "summary": "Understand integers, floats, strings, booleans, and how dynamic typing powers data pipelines.", "content": "\n<h3>Why Python for Data Analysis?</h3>\n<p>Python is the premier language for data science due to its concise syntax, rich ecosystem, and expressive data types. Before handling millions of rows in pandas or training models in scikit-learn, you must master Python's native numeric and string types.</p>\n\n<div class=\"callout callout-info\">\n  <strong>Key Concept: Dynamic Typing & Casting</strong>\n  Python variables are references to objects in memory. You don't declare types explicitly; the interpreter infers them at runtime. In analytics, data frequently arrives as strings (from CSVs, web forms, or APIs) and must be explicitly cast to numeric types before calculation.\n</div>\n\n<h4>Core Numeric & Text Types</h4>\n<ul>\n  <li><code>int</code>: Arbitrary-precision integers (counts, IDs, codes).</li>\n  <li><code>float</code>: Double-precision floating-point numbers (prices, percentages, probabilities).</li>\n  <li><code>str</code>: Unicode character sequences. Python 3 strings are immutable.</li>\n  <li><code>bool</code>: Boolean truth values (<code>True</code> or <code>False</code>), fundamental for conditional filtering.</li>\n</ul>\n\n<h4>Type Casting & Precision Gotchas</h4>\n<p>Floating-point numbers follow IEEE 754 standards, meaning expressions like <code>0.1 + 0.2</code> yield <code>0.30000000000000004</code>. Always use rounding (<code>round(val, 2)</code>) or specialized libraries like <code>decimal</code> for financial metrics.</p>\n", "codeExample": "# Core types and explicit type casting in data workflows\ntransaction_id = 948210\nraw_revenue = \"14250.75\"     # Loaded from CSV as text\nunits_sold = \"42\"             # Loaded as text\nis_discounted = True\n\n# Explicit type conversion\nrevenue = float(raw_revenue)\nunits = int(units_sold)\n\n# Analytical computation\navg_unit_price = revenue / units\nmargin_rate = 0.28\nestimated_profit = round(revenue * margin_rate, 2)\n\nprint(f\"Transaction ID: {transaction_id}\")\nprint(f\"Total Revenue:  ${revenue:,.2f}\")\nprint(f\"Units Sold:     {units}\")\nprint(f\"Average Price:  ${avg_unit_price:.2f}/unit\")\nprint(f\"Est. Profit:    ${estimated_profit:,.2f}\")\nprint(f\"Data Types:     rev={type(revenue).__name__}, units={type(units).__name__}\")\n", "exercise": {"prompt": "You are given raw strings representing customer monthly active users (MAU) and churn rate. Convert them to the appropriate numeric types, compute the number of churned users as an integer, and print the result in the exact format: 'Churned users: <number>'.", "starterCode": "raw_mau = \"125000\"\nraw_churn_rate = \"0.048\"  # 4.8% churn\n\n# TODO: Convert types and calculate churned users (rounded to nearest integer)\nmau = int(raw_mau)\nchurn_rate = float(raw_churn_rate)\nchurned = int(round(mau * churn_rate))\n\nprint(f\"Churned users: {churned}\")\n", "hint": "Use int() and float() to cast the strings, multiply them together, wrap in round(), then cast to int().", "solution": "raw_mau = \"125000\"\nraw_churn_rate = \"0.048\"\n\nmau = int(raw_mau)\nchurn_rate = float(raw_churn_rate)\nchurned = int(round(mau * churn_rate))\n\nprint(f\"Churned users: {churned}\")\n", "expectedOutputSnippet": "Churned users: 6000"}, "quiz": {"question": "What is the result and type of <code>type(15 / 3)</code> in Python 3?", "options": ["int with value 5", "float with value 5.0", "str with value '5.0'", "TypeError because division requires explicit casting"], "correct": 1, "explanation": "In Python 3, the standard division operator (/) always returns a float, even if the operands divide evenly without a remainder. To obtain an integer result, use floor division (//)."}}, {"id": "m1-l2", "title": "1.2 Data Structures: Lists, Dicts & Comprehensions", "duration": "15 min", "difficulty": "Beginner", "summary": "Wrangle records using lists, dictionaries, tuples, sets, and concise list comprehensions.", "content": "\n<h3>Collections: The Bedrock of Analytics</h3>\n<p>Before dataframes, real-world data lives in standard Python collections. JSON API responses are nested dictionaries, database query cursors return lists of tuples, and unique customer IDs are deduplicated using sets.</p>\n\n<h4>Comparison of Python Collections</h4>\n<ul>\n  <li><code>List</code>: Ordered, mutable sequence of items. Ideal for sequential time series or arrays of records.</li>\n  <li><code>Dictionary</code>: Key-value hash map. Fast lookups, flexible representation of JSON payloads.</li>\n  <li><code>Tuple</code>: Immutable sequence. Used for fixed coordinates and database row records.</li>\n  <li><code>Set</code>: Unordered collection of unique items. O(1) membership testing and deduplication.</li>\n</ul>\n\n<h4>List Comprehensions</h4>\n<p>List comprehensions provide an elegant, readable, and computationally efficient way to transform and filter sequences in a single line of code:</p>\n<pre><code>clean_data = [transform(x) for x in raw_records if condition(x)]</code></pre>\n", "codeExample": "# Processing customer records with dicts, sets, and comprehensions\nraw_orders = [\n    {\"order_id\": 101, \"customer\": \"Alice\", \"amount\": 120.50, \"status\": \"completed\"},\n    {\"order_id\": 102, \"customer\": \"Bob\", \"amount\": 45.00, \"status\": \"refunded\"},\n    {\"order_id\": 103, \"customer\": \"Alice\", \"amount\": 230.00, \"status\": \"completed\"},\n    {\"order_id\": 104, \"customer\": \"Charlie\", \"amount\": 89.90, \"status\": \"completed\"},\n    {\"order_id\": 105, \"customer\": \"Bob\", \"amount\": 15.00, \"status\": \"completed\"},\n]\n\n# 1. Filter completed sales amounts using list comprehension\ncompleted_amounts = [order[\"amount\"] for order in raw_orders if order[\"status\"] == \"completed\"]\n\n# 2. Extract unique customer names using a set\nunique_customers = {order[\"customer\"] for order in raw_orders}\n\n# 3. Aggregate total spend per customer with a dict\ncustomer_spend = {}\nfor order in raw_orders:\n    if order[\"status\"] == \"completed\":\n        cust = order[\"customer\"]\n        customer_spend[cust] = customer_spend.get(cust, 0.0) + order[\"amount\"]\n\nprint(\"Completed Amounts:\", completed_amounts)\nprint(f\"Total Completed Revenue: ${sum(completed_amounts):.2f}\")\nprint(\"Unique Customers:\", sorted(list(unique_customers)))\nprint(\"Customer Spend Summary:\")\nfor cust, total in customer_spend.items():\n    print(f\"  {cust:10}: ${total:>7.2f}\")\n", "exercise": {"prompt": "Given a list of daily temperatures in Fahrenheit, write a list comprehension to convert all temperatures that are at or above 70\u00b0F to Celsius (Formula: (F - 32) * 5 / 9). Round each Celsius value to 1 decimal place.", "starterCode": "temps_f = [68, 72, 85, 65, 90, 77, 60]\n\n# TODO: Filter temps >= 70 and convert to Celsius rounded to 1 decimal\ntemps_c = [round((f - 32) * 5 / 9, 1) for f in temps_f if f >= 70]\n\nprint(\"Warm temps in Celsius:\", temps_c)\n", "hint": "The comprehension format is: [round((f - 32) * 5 / 9, 1) for f in temps_f if f >= 70]", "solution": "temps_f = [68, 72, 85, 65, 90, 77, 60]\ntemps_c = [round((f - 32) * 5 / 9, 1) for f in temps_f if f >= 70]\nprint(\"Warm temps in Celsius:\", temps_c)\n", "expectedOutputSnippet": "[22.2, 29.4, 32.2, 25.0]"}, "quiz": {"question": "Which data structure provides average O(1) time complexity for membership testing (e.g., checking if `x in collection`)?", "options": ["list", "tuple", "set", "deque"], "correct": 2, "explanation": "Sets in Python are implemented using hash tables. Checking if an element exists in a set runs in O(1) average time, compared to O(n) linear scanning in a list or tuple."}}, {"id": "m1-l3", "title": "1.3 Functions, Lambda Expressions & Control Flow", "duration": "15 min", "difficulty": "Beginner", "summary": "Write modular analysis functions, apply anonymous lambdas, and design clean control flow.", "content": "\n<h3>Modular Analytics Code</h3>\n<p>Writing clean data analysis requires packaging repeatable logic into reusable functions. In data science, you will frequently write feature engineering functions, custom aggregation rules, and data validation routines.</p>\n\n<h4>Function Design Principles</h4>\n<ul>\n  <li><strong>Default parameters:</strong> Set standard analytical thresholds (e.g. <code>alpha=0.05</code> or <code>drop_na=True</code>).</li>\n  <li><strong>Docstrings:</strong> Specify Inputs, Outputs, and Assumptions clearly.</li>\n  <li><strong>Lambdas:</strong> Anonymous functions (<code>lambda x: expression</code>) for lightweight transformations.</li>\n</ul>\n", "codeExample": "# Defining analytical functions and lambda sorting\nfrom typing import List, Dict\n\ndef calculate_summary_stats(values: List[float]) -> Dict[str, float]:\n    \"\"\"Compute count, mean, min, and max for a numeric series.\"\"\"\n    if not values:\n        return {\"count\": 0, \"mean\": 0.0, \"min\": 0.0, \"max\": 0.0}\n    \n    n = len(values)\n    mean_val = sum(values) / n\n    return {\n        \"count\": n,\n        \"mean\": round(mean_val, 2),\n        \"min\": min(values),\n        \"max\": max(values)\n    }\n\nemployees = [\n    {\"name\": \"Elena\", \"dept\": \"Data\", \"salary\": 115000},\n    {\"name\": \"Marcus\", \"dept\": \"Eng\", \"salary\": 132000},\n    {\"name\": \"Sara\", \"dept\": \"Data\", \"salary\": 98000},\n    {\"name\": \"David\", \"dept\": \"Marketing\", \"salary\": 85000},\n    {\"name\": \"Priya\", \"dept\": \"Data\", \"salary\": 140000},\n]\n\n# Use lambda with sorted to rank employees by salary descending\ntop_earners = sorted(employees, key=lambda emp: emp[\"salary\"], reverse=True)\ndata_salaries = [e[\"salary\"] for e in employees if e[\"dept\"] == \"Data\"]\nstats = calculate_summary_stats(data_salaries)\n\nprint(\"Top Earner:\", top_earners[0][\"name\"], f\"(${top_earners[0]['salary']:,})\")\nprint(\"Data Team Salary Stats:\", stats)\n", "exercise": {"prompt": "Create a function called `normalize_scores(scores, max_score=100.0)` that takes a list of numbers and returns a new list of scaled percentages between 0.0 and 1.0 (where each score is divided by max_score and rounded to 3 decimals). Test it with scores = [45, 78, 92, 100].", "starterCode": "def normalize_scores(scores, max_score=100.0):\n    # TODO: Return scaled scores rounded to 3 decimal places\n    return [round(s / max_score, 3) for s in scores]\n\ntest_scores = [45, 78, 92, 100]\nprint(\"Normalized:\", normalize_scores(test_scores))\n", "hint": "Divide each score in the list by max_score and use round(..., 3).", "solution": "def normalize_scores(scores, max_score=100.0):\n    return [round(s / max_score, 3) for s in scores]\n\ntest_scores = [45, 78, 92, 100]\nprint(\"Normalized:\", normalize_scores(test_scores))\n", "expectedOutputSnippet": "[0.45, 0.78, 0.92, 1.0]"}, "quiz": {"question": "What is the primary constraint of a Python `lambda` function compared to a standard `def` block?", "options": ["It cannot accept more than one argument", "It is restricted to a single syntactic expression and cannot contain statements like `assert` or multi-line assignments", "It executes in a separate CPU thread", "It can only return integer values"], "correct": 1, "explanation": "A lambda function in Python can only consist of a single expression whose evaluated value is implicitly returned. It cannot contain assignment statements, loops, or complex multi-line logic."}}, {"id": "m1-l4", "title": "1.4 File I/O, JSON & Exception Handling", "duration": "14 min", "difficulty": "Beginner", "summary": "Safely read and parse CSV and JSON files with context managers and robust error handling.", "content": "\n<h3>Interacting with Real Data Sources</h3>\n<p>Data science pipelines read from diverse storage backends: CSV files, JSON feeds, and database streams. Handling missing files, malformed rows, and network timeouts gracefully is essential for automated pipelines.</p>\n\n<h4>Context Managers (<code>with open(...)</code>)</h4>\n<p>Always use Python's <code>with</code> statement when opening files. The context manager ensures the file descriptor is automatically closed even if an exception occurs mid-read, preventing file lockouts and memory leaks.</p>\n", "codeExample": "# Robust JSON parsing and error handling simulation\nimport json\n\nraw_json_data = '''\n[\n    {\"id\": 1, \"product\": \"Analytics Pro\", \"price\": 49.99, \"active\": true},\n    {\"id\": 2, \"product\": \"Dashboard Kit\", \"price\": \"invalid_num\", \"active\": true},\n    {\"id\": 3, \"product\": \"Data Pipeline\", \"price\": 129.50, \"active\": false},\n    {\"id\": 4, \"product\": \"SQL Booster\", \"price\": 35.00, \"active\": true}\n]\n'''\n\ndef parse_and_validate_catalog(json_str):\n    try:\n        catalog = json.loads(json_str)\n        valid_items = []\n        errors = []\n        for item in catalog:\n            try:\n                price = float(item[\"price\"])\n                valid_items.append({\"id\": item[\"id\"], \"product\": item[\"product\"], \"price\": price})\n            except (ValueError, KeyError) as e:\n                errors.append(f\"Item #{item.get('id', '?')} failed: {e}\")\n        return valid_items, errors\n    except json.JSONDecodeError as err:\n        return [], [str(err)]\n\nvalid, errs = parse_and_validate_catalog(raw_json_data)\nprint(f\"Parsed {len(valid)} valid items, {len(errs)} error(s):\")\nfor v in valid:\n    print(f\"  [{v['id']}] {v['product']:15} - ${v['price']:.2f}\")\n", "exercise": {"prompt": "Write a safe function `safe_divide(numerator, denominator, default=0.0)` that attempts float division and catches `ZeroDivisionError` and `TypeError`, returning `default` if either exception occurs.", "starterCode": "def safe_divide(numerator, denominator, default=0.0):\n    try:\n        return float(numerator) / float(denominator)\n    except (ZeroDivisionError, TypeError, ValueError):\n        return default\n\nprint(\"10 / 2  =\", safe_divide(10, 2))\nprint(\"10 / 0  =\", safe_divide(10, 0))\n", "hint": "Wrap the division in try/except block.", "solution": "def safe_divide(numerator, denominator, default=0.0):\n    try:\n        return float(numerator) / float(denominator)\n    except (ZeroDivisionError, TypeError, ValueError):\n        return default\n\nprint(\"10 / 2  =\", safe_divide(10, 2))\nprint(\"10 / 0  =\", safe_divide(10, 0))\n", "expectedOutputSnippet": "10 / 0  = 0.0"}, "quiz": {"question": "Why is using `with open('data.csv', 'r') as f:` strongly preferred over `f = open('data.csv', 'r')`?", "options": ["It runs Python code in multithreaded mode", "It guarantees the file will be closed automatically, even if an exception is raised inside the block", "It automatically converts CSV files into pandas DataFrames", "It prevents other programs from reading the file simultaneously"], "correct": 1, "explanation": "Context managers implement the `__enter__` and `__exit__` protocols. When the execution exits the `with` block, `f.close()` is guaranteed to execute, preventing resource leaks."}}]}, {"id": "module-2", "title": "Module 2: NumPy \u2014 Numerical Computing Foundation", "badge": "Intermediate", "lessons": [{"id": "m2-l1", "title": "2.1 NumPy Arrays, Shapes & Vectorization", "duration": "16 min", "difficulty": "Intermediate", "summary": "Harness ndarray memory layouts, shapes, strides, and 100x speedups with vectorized operations.", "content": "\n<h3>Why NumPy is the Engine of Modern Data Science</h3>\n<p>Standard Python lists are arrays of pointers to individual Python heap objects, requiring pointer dereferencing and dynamic type checks on every operation. NumPy (Numerical Python) stores values in contiguous blocks of memory with fixed C-types, unlocking SIMD hardware acceleration and blazing execution speeds.</p>\n\n<div class=\"callout callout-success\">\n  <strong>The Vectorization Rule</strong>\n  Whenever possible, replace Python <code>for</code> loops with vectorized array operations. NumPy delegates computations to compiled C/Fortran routines that execute up to 100x faster than pure Python loops!\n</div>\n\n<h4>Key ndarray Attributes</h4>\n<ul>\n  <li><code>ndarray.ndim</code>: Number of dimensions (1 for vectors, 2 for matrices, 3+ for tensors).</li>\n  <li><code>ndarray.shape</code>: Tuple indicating the size along each dimension (e.g. <code>(1000, 4)</code>).</li>\n  <li><code>ndarray.dtype</code>: Data type of elements (e.g. <code>np.float64</code>, <code>np.int32</code>).</li>\n  <li><code>ndarray.size</code>: Total number of elements in the array.</li>\n</ul>\n", "codeExample": "# Vectorization vs Loops in NumPy\nimport numpy as np\n\n# Create 1D and 2D arrays\nsales_q1 = np.array([12000, 15000, 18000, 22000], dtype=np.float64)\ntax_rates = np.array([0.08, 0.085, 0.075, 0.09])\n\n# Vectorized element-wise calculation (No loops!)\ntax_owed = sales_q1 * tax_rates\nnet_revenue = sales_q1 - tax_owed\n\nprint(\"Sales Q1:     \", sales_q1)\nprint(\"Tax Owed:     \", np.round(tax_owed, 2))\nprint(\"Net Revenue:  \", np.round(net_revenue, 2))\nprint(\"Array Shape:  \", sales_q1.shape)\nprint(\"Array Dtype:  \", sales_q1.dtype)\n", "exercise": {"prompt": "Create a 1D NumPy array with numbers from 10 to 50 (inclusive) with a step of 5 using `np.arange()`. Then divide the entire array by 10.0 using vectorization and print the result.", "starterCode": "import numpy as np\n\n# TODO: Create array from 10 to 50 (inclusive) with step of 5\narr = np.arange(10, 55, 5)\nscaled = arr / 10.0\n\nprint(\"Scaled Array:\", scaled)\n", "hint": "Use np.arange(10, 55, 5) then arr / 10.0.", "solution": "import numpy as np\narr = np.arange(10, 55, 5)\nscaled = arr / 10.0\nprint(\"Scaled Array:\", scaled)\n", "expectedOutputSnippet": "[1.  1.5 2.  2.5 3.  3.5 4.  4.5 5. ]"}, "quiz": {"question": "What is the primary architectural reason NumPy operations are drastically faster than native Python list iterations?", "options": ["NumPy automatically offloads all calculations to cloud servers", "NumPy arrays store elements in contiguous memory buffers of uniform C types, leveraging CPU cache and SIMD vector instructions", "NumPy converts all data into strings before computation", "NumPy bypasses the operating system kernel"], "correct": 1, "explanation": "Contiguous memory layouts without pointer dereferencing allow modern CPUs to cache data efficiently and execute Single Instruction, Multiple Data (SIMD) vector registers."}}, {"id": "m2-l2", "title": "2.2 Slicing, Indexing & Boolean Masking", "duration": "18 min", "difficulty": "Intermediate", "summary": "Master multi-axis indexing, sub-matrix slicing, and conditional boolean filtering.", "content": "\n<h3>Accessing and Filtering N-Dimensional Data</h3>\n<p>NumPy provides expressive indexing capabilities that form the basis for pandas queries. You can slice rows and columns simultaneously using <code>array[row_slice, col_slice]</code>.</p>\n\n<h4>Views vs Copies</h4>\n<div class=\"callout callout-warning\">\n  <strong>Critical Warning: Slices are Views!</strong>\n  Unlike Python list slices, slicing a NumPy array creates a <em>view</em> of the original memory buffer, not a new copy. Modifying a slice alters the underlying parent array! To create an independent copy, explicitly call <code>.copy()</code>.\n</div>\n", "codeExample": "# 2D Slicing and Boolean Masking\nimport numpy as np\n\nreadings = np.array([\n    [22.4, 23.1, 22.8],\n    [25.0, 26.2, 28.5],\n    [19.2, 18.9, 19.5],\n    [31.2, 33.0, 30.8]\n])\n\n# 1. Slicing rows 1 to 3, columns 0 to 2\nsub_matrix = readings[1:3, 0:2]\n\n# 2. Boolean filtering: Detect overheating readings (> 25.0)\noverheat_values = readings[readings > 25.0]\n\nprint(\"Full Sensor Matrix:\\n\", readings)\nprint(\"\\nSub-matrix (Sensors 1-2, Times 0-1):\\n\", sub_matrix)\nprint(\"\\nOverheating Values (>25\u00b0C):\", overheat_values)\n", "exercise": {"prompt": "Given a 2D array of monthly customer scores, extract all scores that are strictly greater than 80 and calculate their average using `np.mean()`. Print the average rounded to 2 decimal places.", "starterCode": "import numpy as np\n\nscores = np.array([\n    [65, 82, 74],\n    [88, 91, 79],\n    [55, 84, 96]\n])\n\nhigh_scores = scores[scores > 80]\navg_high = np.mean(high_scores)\n\nprint(f\"High scores average: {avg_high:.2f}\")\n", "hint": "Filter scores with `scores[scores > 80]` then call `np.mean()`.", "solution": "import numpy as np\nscores = np.array([\n    [65, 82, 74],\n    [88, 91, 79],\n    [55, 84, 96]\n])\nhigh_scores = scores[scores > 80]\navg_high = np.mean(high_scores)\nprint(f\"High scores average: {avg_high:.2f}\")\n", "expectedOutputSnippet": "High scores average: 88.20"}, "quiz": {"question": "What happens when you execute `sub = arr[0:2, 0:2]` followed by `sub[0, 0] = 999`?", "options": ["Only `sub` is modified; `arr` remains unchanged", "Both `sub` and the original array `arr` are modified because slicing returns a memory view", "A `ReadOnlyError` is raised", "Python creates a temporary copy on disk"], "correct": 1, "explanation": "NumPy slices create views into the existing memory buffer without copying data. Modifying elements in the slice mutates the underlying original array."}}, {"id": "m2-l3", "title": "2.3 Aggregations, Axis Operations & Broadcasting", "duration": "18 min", "difficulty": "Intermediate", "summary": "Compute summary statistics along specific axes and leverage automatic dimension broadcasting.", "content": "\n<h3>Understanding the Axis Parameter</h3>\n<p>In a 2D array, operations can collapse rows or columns depending on the <code>axis</code> parameter:</p>\n<ul>\n  <li><code>axis=0</code>: Operates <strong>down the columns</strong> (collapsing rows), returning one result per column.</li>\n  <li><code>axis=1</code>: Operates <strong>across the rows</strong> (collapsing columns), returning one result per row.</li>\n</ul>\n", "codeExample": "# Aggregations across axes and broadcasting normalization\nimport numpy as np\n\nsales = np.array([\n    [10000, 14000, 12000],\n    [11500, 13800, 12500],\n    [12000, 15500, 13000],\n    [13000, 16000, 14200]\n])\n\n# Total per store (collapse rows, axis=0)\nstore_totals = np.sum(sales, axis=0)\n\n# Weekly averages per week (collapse cols, axis=1)\nweekly_averages = np.mean(sales, axis=1)\n\nprint(\"Store Totals (Axis 0):\", store_totals)\nprint(\"Weekly Averages (Axis 1):\", np.round(weekly_averages, 1))\n", "exercise": {"prompt": "Calculate student max scores across exams (axis=1) and exam class averages down students (axis=0) using `np.max` and `np.mean`.", "starterCode": "import numpy as np\n\nexam_grades = np.array([\n    [78, 85, 92],\n    [90, 88, 95],\n    [64, 72, 80],\n    [82, 80, 85]\n])\n\nstudent_max = np.max(exam_grades, axis=1)\nexam_avg = np.mean(exam_grades, axis=0)\n\nprint(\"Student Maxes:\", student_max)\nprint(\"Exam Averages:\", np.round(exam_avg, 1))\n", "hint": "Use axis=1 for student maxes and axis=0 for exam averages.", "solution": "import numpy as np\nexam_grades = np.array([\n    [78, 85, 92],\n    [90, 88, 95],\n    [64, 72, 80],\n    [82, 80, 85]\n])\nstudent_max = np.max(exam_grades, axis=1)\nexam_avg = np.mean(exam_grades, axis=0)\nprint(\"Student Maxes:\", student_max)\nprint(\"Exam Averages:\", np.round(exam_avg, 1))\n", "expectedOutputSnippet": "Student Maxes: [92 95 80 85]"}, "quiz": {"question": "What will be the shape of the result when adding an array of shape `(4, 1)` to an array of shape `(1, 3)`?", "options": ["(4, 3) through broadcasting", "ValueError: shapes cannot be broadcast together", "(1, 1)", "(4, 1)"], "correct": 0, "explanation": "Both dimensions satisfy broadcasting rules: dimension 0 has sizes 4 and 1 (broadcasts to 4), and dimension 1 has sizes 1 and 3 (broadcasts to 3). The output shape is (4, 3)."}}, {"id": "m2-l4", "title": "2.4 Matrix Multiplication & Linear Algebra", "duration": "17 min", "difficulty": "Intermediate", "summary": "Perform dot products, matrix multiplications (@ operator), transpositions, and inversions.", "content": "\n<h3>Linear Algebra for Data Science</h3>\n<p>Every machine learning model boils down to linear algebra. Linear regression computes predictions via the dot product of weight vectors and feature matrices: $\\hat{y} = Xw$.</p>\n", "codeExample": "# Matrix multiplication in predictive modeling\nimport numpy as np\n\nX = np.array([\n    [25, 45],\n    [40, 85],\n    [32, 60]\n])\nw = np.array([0.15, 0.85])\nb = 5.0\n\npredictions = X @ w + b\nprint(\"Customer Feature Matrix X:\\n\", X)\nprint(\"Predicted Credit Limits ($k):\", np.round(predictions, 2))\n", "exercise": {"prompt": "Calculate the dot product of vector `u = np.array([1, 3, -5])` and vector `v = np.array([4, -2, -1])` using either the `@` operator or `np.dot()`. Print the result.", "starterCode": "import numpy as np\n\nu = np.array([1, 3, -5])\nv = np.array([4, -2, -1])\n\ndot_prod = u @ v\nprint(\"Dot product:\", dot_prod)\n", "hint": "Use u @ v or np.dot(u, v).", "solution": "import numpy as np\nu = np.array([1, 3, -5])\nv = np.array([4, -2, -1])\ndot_prod = u @ v\nprint(\"Dot product:\", dot_prod)\n", "expectedOutputSnippet": "Dot product: 3"}, "quiz": {"question": "What is the difference between `A * B` and `A @ B` for two 2D NumPy arrays?", "options": ["`A * B` performs element-wise multiplication; `A @ B` performs matrix multiplication", "`A * B` performs matrix multiplication; `A @ B` performs tensor cross product", "They are identical aliases for each other", "`@` is deprecated and should not be used in modern Python"], "correct": 0, "explanation": "In NumPy, the asterisk (*) denotes element-wise multiplication (Hadamard product), while the @ operator performs standard matrix multiplication according to linear algebra rules."}}]}, {"id": "module-3", "title": "Module 3: pandas \u2014 Data Wrangling & Manipulation", "badge": "Intermediate", "lessons": [{"id": "m3-l1", "title": "3.1 Series, DataFrames & Indexing (.loc vs .iloc)", "duration": "18 min", "difficulty": "Intermediate", "summary": "Master the primary data structures of pandas, label-based `.loc`, and position-based `.iloc` indexing.", "content": "\n<h3>The Industry Standard for Tabular Data</h3>\n<p>pandas provides high-performance data structures built on top of NumPy. The primary object is the <code>DataFrame</code>, a two-dimensional labeled data structure with columns of potentially different types.</p>\n\n<div class=\"callout callout-info\">\n  <strong>Golden Rule: .loc vs .iloc</strong>\n  <ul>\n    <li><code>df.loc[row_label, col_label]</code>: <strong>Label-based</strong> indexing. Slices are <em>inclusive</em> of endpoint!</li>\n    <li><code>df.iloc[row_idx, col_idx]</code>: <strong>Integer position-based</strong> indexing (0-indexed). Slices are <em>exclusive</em> of stop.</li>\n  </ul>\n</div>\n", "codeExample": "import pandas as pd\n\ndata = {\n    \"name\": [\"Alice\", \"Bob\", \"Charlie\", \"Diana\"],\n    \"department\": [\"Analytics\", \"Engineering\", \"Analytics\", \"Marketing\"],\n    \"salary\": [95000, 110000, 92000, 88000]\n}\ndf = pd.DataFrame(data, index=[\"E101\", \"E102\", \"E103\", \"E104\"])\n\n# 1. Label-based indexing with .loc\nalice_info = df.loc[\"E101\", [\"name\", \"salary\"]]\n\n# 2. Position-based indexing with .iloc\nsubset = df.iloc[0:2, [0, 2]]\n\nprint(\"DataFrame:\\n\", df)\nprint(\"\\nAlice Info (.loc):\\n\", alice_info)\nprint(\"\\nFirst 2 rows (.iloc):\\n\", subset)\n", "exercise": {"prompt": "Given the provided DataFrame of product metrics, use `.loc` to extract the 'price' and 'stock' columns for products with stock less than 30.", "starterCode": "import pandas as pd\n\nproducts = pd.DataFrame({\n    \"product\": [\"Keyboard\", \"Mouse\", \"Monitor\", \"Headset\"],\n    \"price\": [79.99, 29.99, 249.99, 89.99],\n    \"stock\": [45, 12, 8, 35]\n})\n\nlow_stock = products.loc[products[\"stock\"] < 30, [\"product\", \"price\", \"stock\"]]\nprint(\"Low stock items:\\n\", low_stock)\n", "hint": "Use products.loc[products['stock'] < 30, ['product', 'price', 'stock']].", "solution": "import pandas as pd\nproducts = pd.DataFrame({\n    \"product\": [\"Keyboard\", \"Mouse\", \"Monitor\", \"Headset\"],\n    \"price\": [79.99, 29.99, 249.99, 89.99],\n    \"stock\": [45, 12, 8, 35]\n})\nlow_stock = products.loc[products[\"stock\"] < 30, [\"product\", \"price\", \"stock\"]]\nprint(\"Low stock items:\\n\", low_stock)\n", "expectedOutputSnippet": "Monitor"}, "quiz": {"question": "What is the key difference regarding endpoint inclusion between `.loc['A':'C']` and `.iloc[0:2]`?", "options": ["`.loc` includes the endpoint 'C', whereas `.iloc` excludes index 2", "`.loc` excludes 'C', whereas `.iloc` includes index 2", "Both exclude their endpoints", "Both include their endpoints"], "correct": 0, "explanation": "Label slicing in `.loc` is inclusive of both start and stop boundaries (because pandas cannot deduce what label immediately follows 'C'). Position slicing in `.iloc` adheres to Python's exclusive endpoint convention."}}, {"id": "m3-l2", "title": "3.2 Missing Data, Deduplication & Data Cleaning", "duration": "18 min", "difficulty": "Intermediate", "summary": "Handle real-world messy data: imputing nulls, converting data types, and filtering anomalies.", "content": "\n<h3>Cleaning Messy Real-World Data</h3>\n<p>Data scientists spend up to 80% of their time cleaning raw data. pandas represents missing data with <code>np.nan</code> (Not a Number) or pandas' native <code>pd.NA</code>.</p>\n", "codeExample": "import pandas as pd\nimport numpy as np\n\nraw_sales = pd.DataFrame({\n    \"order_id\": [101, 102, 103, 104, 104],\n    \"customer\": [\"Alice\", \"Bob\", np.nan, \"Diana\", \"Diana\"],\n    \"revenue\": [250.0, np.nan, 180.0, 310.0, 310.0]\n})\n\ndf_clean = raw_sales.drop_duplicates()\nmedian_rev = df_clean[\"revenue\"].median()\ndf_clean[\"revenue\"] = df_clean[\"revenue\"].fillna(median_rev)\n\nprint(\"Cleaned DataFrame:\\n\", df_clean)\n", "exercise": {"prompt": "Fill all null values in the 'rating' column with 0.0, drop any rows where 'user_id' is missing, and print the resulting DataFrame shape.", "starterCode": "import pandas as pd\nimport numpy as np\n\nreviews = pd.DataFrame({\n    \"user_id\": [1, 2, np.nan, 4, 5],\n    \"rating\": [4.5, np.nan, 3.0, 5.0, np.nan]\n})\n\nclean_reviews = reviews.dropna(subset=[\"user_id\"]).copy()\nclean_reviews[\"rating\"] = clean_reviews[\"rating\"].fillna(0.0)\n\nprint(\"Clean reviews shape:\", clean_reviews.shape)\n", "hint": "Use reviews.dropna(subset=['user_id']) and .fillna(0.0).", "solution": "import pandas as pd\nimport numpy as np\nreviews = pd.DataFrame({\n    \"user_id\": [1, 2, np.nan, 4, 5],\n    \"rating\": [4.5, np.nan, 3.0, 5.0, np.nan]\n})\nclean_reviews = reviews.dropna(subset=[\"user_id\"]).copy()\nclean_reviews[\"rating\"] = clean_reviews[\"rating\"].fillna(0.0)\nprint(\"Clean reviews shape:\", clean_reviews.shape)\n", "expectedOutputSnippet": "Clean reviews shape: (4, 2)"}, "quiz": {"question": "Why is the median often preferred over the mean when imputing missing numeric data such as salaries or home prices?", "options": ["The median calculation is faster in C", "The median is robust against extreme outliers and skewed distributions", "The mean cannot be computed if missing values exist", "pandas only supports median imputation"], "correct": 1, "explanation": "In skewed distributions (like income or real estate prices), extreme values heavily distort the mean. The median represents the true 50th percentile and provides a more realistic central tendency for imputation."}}, {"id": "m3-l3", "title": "3.3 GroupBy, Aggregations & Pivot Tables", "duration": "20 min", "difficulty": "Intermediate", "summary": "Master the Split-Apply-Combine paradigm, multi-column aggregations, and dimensional pivot tables.", "content": "\n<h3>The Split-Apply-Combine Pattern</h3>\n<p>Analytical questions almost always involve grouping data: What is the average transaction value per channel? Which region has the highest churn?</p>\n", "codeExample": "import pandas as pd\n\ntransactions = pd.DataFrame({\n    \"region\": [\"North\", \"North\", \"South\", \"South\", \"North\", \"South\"],\n    \"channel\": [\"Web\", \"Retail\", \"Web\", \"Retail\", \"Web\", \"Web\"],\n    \"revenue\": [1200, 850, 2100, 1400, 950, 1750]\n})\n\nagg_summary = transactions.groupby([\"region\", \"channel\"]).agg(\n    total_revenue=(\"revenue\", \"sum\"),\n    avg_revenue=(\"revenue\", \"mean\"),\n    order_count=(\"revenue\", \"count\")\n).reset_index()\n\nprint(\"GroupBy Summary:\\n\", agg_summary)\n", "exercise": {"prompt": "Using the provided transactions DataFrame, compute the total revenue and mean discount grouped by 'channel'. Print the resulting grouped DataFrame.", "starterCode": "import pandas as pd\n\ndf = pd.DataFrame({\n    \"channel\": [\"Online\", \"In-Store\", \"Online\", \"Online\", \"In-Store\"],\n    \"revenue\": [200, 150, 450, 300, 180],\n    \"discount\": [0.10, 0.05, 0.15, 0.00, 0.10]\n})\n\nchannel_stats = df.groupby(\"channel\").agg({\"revenue\": \"sum\", \"discount\": \"mean\"})\nprint(\"Channel Statistics:\\n\", channel_stats)\n", "hint": "Use df.groupby('channel').agg({'revenue': 'sum', 'discount': 'mean'}).", "solution": "import pandas as pd\ndf = pd.DataFrame({\n    \"channel\": [\"Online\", \"In-Store\", \"Online\", \"Online\", \"In-Store\"],\n    \"revenue\": [200, 150, 450, 300, 180],\n    \"discount\": [0.10, 0.05, 0.15, 0.00, 0.10]\n})\nchannel_stats = df.groupby(\"channel\").agg({\"revenue\": \"sum\", \"discount\": \"mean\"})\nprint(\"Channel Statistics:\\n\", channel_stats)\n", "expectedOutputSnippet": "950"}, "quiz": {"question": "What is the primary structural difference between `groupby().agg()` and `pd.pivot_table()`?", "options": ["Pivot tables allow two-dimensional cross-tabulation with variables defined along both index (rows) and columns", "`groupby` only works on numbers, while pivot tables only work on text", "Pivot tables cannot compute sums", "There is no difference; they are identical functions"], "correct": 0, "explanation": "Pivot tables shape aggregated metrics into a matrix format with row indices and column headers, making multi-dimensional comparisons immediate and visual."}}, {"id": "m3-l4", "title": "3.4 Merging, Joining & Concatenating", "duration": "18 min", "difficulty": "Intermediate", "summary": "Combine multiple datasets using SQL-like inner, left, outer joins, and vertical/horizontal stacking.", "content": "\n<h3>Multi-Table Data Integration</h3>\n<p>Data in production databases is normalized across multiple tables. To perform analytical modeling, you must merge customer profiles, transaction logs, and product catalog metadata into unified analytical views.</p>\n", "codeExample": "import pandas as pd\n\ncustomers = pd.DataFrame({\n    \"customer_id\": [1, 2, 3],\n    \"name\": [\"Alpha Corp\", \"Beta LLC\", \"Gamma Inc\"]\n})\n\norders = pd.DataFrame({\n    \"order_id\": [1001, 1002, 1003],\n    \"customer_id\": [1, 2, 99],\n    \"amount\": [5400, 3200, 750]\n})\n\norders_enriched = pd.merge(orders, customers, on=\"customer_id\", how=\"left\")\nprint(\"Left Join Enriched Orders:\\n\", orders_enriched)\n", "exercise": {"prompt": "Perform an inner merge between `users` and `subscriptions` on 'user_id', and calculate the total 'mrr' across active subscriptions.", "starterCode": "import pandas as pd\n\nusers = pd.DataFrame({\n    \"user_id\": [10, 20, 30, 40],\n    \"plan\": [\"Pro\", \"Free\", \"Pro\", \"Enterprise\"]\n})\n\nsubscriptions = pd.DataFrame({\n    \"user_id\": [10, 30, 40],\n    \"mrr\": [49.0, 49.0, 299.0]\n})\n\nmerged = pd.merge(users, subscriptions, on=\"user_id\", how=\"inner\")\ntotal_mrr = merged[\"mrr\"].sum()\n\nprint(\"Total MRR: $\", total_mrr)\n", "hint": "Use pd.merge(users, subscriptions, on='user_id', how='inner') then sum mrr.", "solution": "import pandas as pd\nusers = pd.DataFrame({\n    \"user_id\": [10, 20, 30, 40],\n    \"plan\": [\"Pro\", \"Free\", \"Pro\", \"Enterprise\"]\n})\nsubscriptions = pd.DataFrame({\n    \"user_id\": [10, 30, 40],\n    \"mrr\": [49.0, 49.0, 299.0]\n})\nmerged = pd.merge(users, subscriptions, on=\"user_id\", how=\"inner\")\ntotal_mrr = merged[\"mrr\"].sum()\nprint(\"Total MRR: $\", total_mrr)\n", "expectedOutputSnippet": "Total MRR: $ 397.0"}, "quiz": {"question": "Which join type should you use if you want to keep all records from a master sales ledger table while appending marketing campaign details where available?", "options": ["how='inner'", "how='left' (with sales ledger as the left DataFrame)", "how='right' (with sales ledger as the left DataFrame)", "how='cross'"], "correct": 1, "explanation": "A left join ensures that every single transaction row in the left ledger table is retained, populating missing campaign attributes with NaN if no matching campaign ID exists."}}]}, {"id": "module-4", "title": "Module 4: Matplotlib & Seaborn \u2014 Exploratory Visualization", "badge": "Advanced", "lessons": [{"id": "m4-l1", "title": "4.1 Matplotlib Architecture & Figures/Subplots", "duration": "16 min", "difficulty": "Intermediate", "summary": "Understand the Object-Oriented Matplotlib interface (`fig, ax`), multi-panel layouts, and custom styling.", "content": "\n<h3>The Foundation of Python Visualization</h3>\n<p>Matplotlib is the core charting engine underpinning Python's visualization stack. Professional data analysts rely on the <strong>Object-Oriented (OO) interface</strong> using <code>fig, ax = plt.subplots()</code>.</p>\n", "codeExample": "import matplotlib.pyplot as plt\n\nmonths = [\"Jan\", \"Feb\", \"Mar\", \"Apr\", \"May\", \"Jun\"]\nproduct_a_sales = [45, 52, 58, 65, 72, 85]\nproduct_b_sales = [30, 38, 42, 49, 53, 61]\n\nfig, ax = plt.subplots(figsize=(8, 4))\nax.plot(months, product_a_sales, marker=\"o\", color=\"#4f46e5\", label=\"Enterprise Tier\")\nax.plot(months, product_b_sales, marker=\"s\", color=\"#10b981\", linestyle=\"--\", label=\"Growth Tier\")\n\nax.set_title(\"Monthly Revenue Trajectory (H1 2026)\")\nax.set_ylabel(\"Revenue ($k)\")\nax.legend()\nplt.tight_layout()\n\nprint(\"Chart plotted for 6 fiscal months.\")\n", "exercise": {"prompt": "Create a bar chart of 4 marketing channels ('SEO', 'Paid Ads', 'Email', 'Referral') with corresponding conversion counts [350, 620, 480, 290].", "starterCode": "import matplotlib.pyplot as plt\n\nchannels = ['SEO', 'Paid Ads', 'Email', 'Referral']\nconversions = [350, 620, 480, 290]\n\nfig, ax = plt.subplots()\nax.bar(channels, conversions, color='#6366f1')\nax.set_title(\"Conversions by Channel\")\n\nprint(\"Max conversion channel:\", channels[conversions.index(max(conversions))])\n", "hint": "Use ax.bar(channels, conversions).", "solution": "import matplotlib.pyplot as plt\nchannels = ['SEO', 'Paid Ads', 'Email', 'Referral']\nconversions = [350, 620, 480, 290]\nfig, ax = plt.subplots()\nax.bar(channels, conversions, color='#6366f1')\nax.set_title(\"Conversions by Channel\")\nprint(\"Max conversion channel:\", channels[conversions.index(max(conversions))])\n", "expectedOutputSnippet": "Paid Ads"}, "quiz": {"question": "What is the primary advantage of using `fig, ax = plt.subplots()` over procedural `plt.plot()` calls?", "options": ["It makes charts load faster in web browsers", "It gives explicit, granular control over multiple subplot axes and prevents state bleed across charts", "It automatically exports high-resolution SVG files", "It eliminates the need for NumPy"], "correct": 1, "explanation": "The Object-Oriented API gives each plot its own explicit Figure and Axes instance, preventing unintended mutations across multiple figures and enabling complex multi-panel dashboard layouts."}}, {"id": "m4-l2", "title": "4.2 Statistical Visualizations with Seaborn", "duration": "18 min", "difficulty": "Intermediate", "summary": "Explore distributions, medians, and spreads using histograms, KDE curves, box plots, and violin plots.", "content": "\n<h3>High-Level Statistical Graphics</h3>\n<p>Seaborn builds directly on Matplotlib, integrating seamlessly with pandas DataFrames. It automates statistical estimations such as computing confidence intervals and kernel density estimations (KDE).</p>\n", "codeExample": "import seaborn as sns\nimport matplotlib.pyplot as plt\nimport pandas as pd\nimport numpy as np\n\nnp.random.seed(42)\ndata = pd.DataFrame({\n    \"tier\": [\"Standard\"]*50 + [\"Gold\"]*50 + [\"Platinum\"]*50,\n    \"order_val\": np.concatenate([np.random.normal(50, 10, 50), np.random.normal(100, 15, 50), np.random.normal(200, 25, 50)])\n})\n\nfig, ax = plt.subplots(figsize=(8, 4))\nsns.boxplot(data=data, x=\"tier\", y=\"order_val\", ax=ax, palette=\"viridis\")\nax.set_title(\"Order Value Distribution by Tier\")\nplt.tight_layout()\n\nprint(\"Summary statistics:\\n\", data.groupby(\"tier\")[\"order_val\"].describe().round(1))\n", "exercise": {"prompt": "Write code using `sns.boxplot()` to plot 'salary' grouped by 'department' from the provided employee DataFrame.", "starterCode": "import seaborn as sns\nimport matplotlib.pyplot as plt\nimport pandas as pd\n\ndf = pd.DataFrame({\n    \"department\": [\"Eng\", \"Eng\", \"Data\", \"Data\", \"Sales\", \"Sales\"],\n    \"salary\": [120000, 135000, 110000, 115000, 95000, 105000]\n})\n\nfig, ax = plt.subplots()\nsns.boxplot(data=df, x=\"department\", y=\"salary\", ax=ax)\nax.set_title(\"Salaries by Department\")\n\nprint(\"Departments analyzed:\", df[\"department\"].unique())\n", "hint": "Use sns.boxplot(data=df, x='department', y='salary', ax=ax).", "solution": "import seaborn as sns\nimport matplotlib.pyplot as plt\nimport pandas as pd\ndf = pd.DataFrame({\n    \"department\": [\"Eng\", \"Eng\", \"Data\", \"Data\", \"Sales\", \"Sales\"],\n    \"salary\": [120000, 135000, 110000, 115000, 95000, 105000]\n})\nfig, ax = plt.subplots()\nsns.boxplot(data=df, x=\"department\", y=\"salary\", ax=ax)\nax.set_title(\"Salaries by Department\")\nprint(\"Departments analyzed:\", df[\"department\"].unique())\n", "expectedOutputSnippet": "Departments analyzed"}, "quiz": {"question": "What information does the central box in a standard Seaborn boxplot represent?", "options": ["The minimum and maximum values", "The Interquartile Range (IQR) spanning the 25th to the 75th percentiles, with a line at the median", "The mean plus or minus one standard deviation", "The top 10% highest outliers"], "correct": 1, "explanation": "The box demarcates the interquartile range (middle 50% of data between Q1 and Q3). The horizontal bar inside represents the median (Q2)."}}, {"id": "m4-l3", "title": "4.3 Correlation Heatmaps & Pairplots", "duration": "18 min", "difficulty": "Advanced", "summary": "Uncover multivariate collinearity and feature relationships with correlation matrices and pairplots.", "content": "\n<h3>Multivariate Relationship Analysis</h3>\n<p>Before training predictive models, you must evaluate feature interactions. Multicollinearity (strong correlation between independent features) can inflate regression coefficients and destabilize models.</p>\n", "codeExample": "import seaborn as sns\nimport matplotlib.pyplot as plt\nimport pandas as pd\n\ndf = pd.DataFrame({\n    \"ad_spend\": [10, 25, 45, 60, 80],\n    \"site_visits\": [45, 110, 205, 275, 360],\n    \"revenue\": [50, 120, 230, 310, 420]\n})\n\ncorr = df.corr()\nfig, ax = plt.subplots(figsize=(6, 4))\nsns.heatmap(corr, annot=True, cmap=\"coolwarm\", ax=ax)\nax.set_title(\"Correlation Heatmap\")\nplt.tight_layout()\n\nprint(\"Correlation Matrix:\\n\", corr.round(3))\n", "exercise": {"prompt": "Calculate the correlation between 'income' and 'credit_score' using `.corr()`.", "starterCode": "import pandas as pd\n\ndf = pd.DataFrame({\n    \"age\": [25, 35, 45, 55],\n    \"income\": [50000, 75000, 110000, 140000],\n    \"credit_score\": [680, 720, 780, 810]\n})\n\ncorr = df.corr()\nincome_credit_corr = corr.loc[\"income\", \"credit_score\"]\nprint(\"Correlation between Income and Credit Score:\", round(income_credit_corr, 2))\n", "hint": "Use df.corr().loc['income', 'credit_score'].", "solution": "import pandas as pd\ndf = pd.DataFrame({\n    \"age\": [25, 35, 45, 55],\n    \"income\": [50000, 75000, 110000, 140000],\n    \"credit_score\": [680, 720, 780, 810]\n})\ncorr = df.corr()\nincome_credit_corr = corr.loc[\"income\", \"credit_score\"]\nprint(\"Correlation between Income and Credit Score:\", round(income_credit_corr, 2))\n", "expectedOutputSnippet": "0.99"}, "quiz": {"question": "If two predictor features have a Pearson correlation coefficient of r = 0.95, what potential issue does this present in linear regression models?", "options": ["Underfitting due to insufficient variance", "Severe multicollinearity, which inflates coefficient standard errors and destabilizes interpretation", "A guaranteed drop in training accuracy to 0%", "Inability to compute predictions"], "correct": 1, "explanation": "High correlation between predictors introduces multicollinearity, causing linear model parameter estimates to become erratic and sensitive to minor perturbations in the data."}}, {"id": "m4-l4", "title": "4.4 Visualization Aesthetics & Storytelling", "duration": "16 min", "difficulty": "Advanced", "summary": "Design accessible color palettes, eliminate chart junk, and communicate analytical insights effectively.", "content": "\n<h3>Designing for Human Perception</h3>\n<p>A visualization is only as good as the decision it enables. Technical accuracy must be paired with clear visual hierarchy, accessible palettes, and minimal extraneous decoration.</p>\n", "codeExample": "import matplotlib.pyplot as plt\n\nyears = [2022, 2023, 2024, 2025, 2026]\nchurn_rate = [8.4, 7.1, 5.9, 4.2, 3.1]\n\nfig, ax = plt.subplots(figsize=(7, 3.5))\nax.plot(years, churn_rate, color=\"#2563eb\", marker=\"o\", linewidth=2.5)\nax.set_title(\"Customer Churn Reduction Milestone\")\nax.set_ylabel(\"Annual Churn Rate (%)\")\nax.spines[\"top\"].set_visible(False)\nax.spines[\"right\"].set_visible(False)\nplt.tight_layout()\n\nprint(\"Total churn reduction:\", round(churn_rate[0] - churn_rate[-1], 1), \"%\")\n", "exercise": {"prompt": "Calculate relative churn reduction percentage: ((initial - final) / initial) * 100.", "starterCode": "initial = 8.4\nfinal = 3.1\n\nreduction = ((initial - final) / initial) * 100\nprint(f\"Relative Churn Reduction: {reduction:.1f}%\")\n", "hint": "Subtract final from initial, divide by initial, multiply by 100.", "solution": "initial = 8.4\nfinal = 3.1\nreduction = ((initial - final) / initial) * 100\nprint(f\"Relative Churn Reduction: {reduction:.1f}%\")\n", "expectedOutputSnippet": "63.1%"}, "quiz": {"question": "Which type of color palette is most appropriate when displaying customer survey net promoter scores (NPS) ranging from -100 to +100?", "options": ["A qualitative categorical palette", "A diverging color palette centered at zero (e.g., Red for negative, Neutral for zero, Blue/Green for positive)", "A single monochrome gray palette", "A repeating rainbow color spectrum"], "correct": 1, "explanation": "Diverging palettes are designed specifically for data with a meaningful midpoint (such as zero, neutrality, or baseline target), emphasizing deviations in both positive and negative directions."}}]}, {"id": "module-5", "title": "Module 5: scikit-learn \u2014 Machine Learning & Modeling", "badge": "Advanced", "lessons": [{"id": "m5-l1", "title": "5.1 The ML Workflow & Feature Preprocessing", "duration": "18 min", "difficulty": "Advanced", "summary": "Construct robust machine learning pipelines with train/test splits, scaling, and one-hot encoding.", "content": "\n<h3>The Scikit-Learn API Philosophy</h3>\n<p>scikit-learn is built on three consistent design patterns:</p>\n<ul>\n  <li><code>Estimator.fit(X, y)</code>: Learns model parameters from training data.</li>\n  <li><code>Transformer.transform(X)</code>: Applies learned transformations to new data (e.g. scaling).</li>\n  <li><code>Predictor.predict(X)</code>: Generates predictions on unseen samples.</li>\n</ul>\n", "codeExample": "import numpy as np\nfrom sklearn.model_selection import train_test_split\nfrom sklearn.preprocessing import StandardScaler\n\nX = np.random.uniform(10, 100, (60, 2))\ny = np.random.choice([0, 1], size=60)\n\nX_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.25, random_state=42)\nscaler = StandardScaler()\nX_train_scaled = scaler.fit_transform(X_train)\nX_test_scaled = scaler.transform(X_test)\n\nprint(\"Train shape:\", X_train.shape, \"Test shape:\", X_test.shape)\nprint(\"Scaled train mean:\", np.round(X_train_scaled.mean(axis=0), 2))\n", "exercise": {"prompt": "Split a feature array X of 50 samples into train and test with test_size=0.25 and random_state=42. Print the number of training samples.", "starterCode": "import numpy as np\nfrom sklearn.model_selection import train_test_split\n\nX = np.arange(100).reshape(50, 2)\ny = np.arange(50)\n\nX_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.25, random_state=42)\nprint(\"Training sample count:\", len(X_train))\n", "hint": "Check len(X_train) after train_test_split.", "solution": "import numpy as np\nfrom sklearn.model_selection import train_test_split\nX = np.arange(100).reshape(50, 2)\ny = np.arange(50)\nX_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.25, random_state=42)\nprint(\"Training sample count:\", len(X_train))\n", "expectedOutputSnippet": "37"}, "quiz": {"question": "Why must you call `scaler.transform(X_test)` instead of `scaler.fit_transform(X_test)` on test data?", "options": ["Calling fit on test data causes a syntax error", "Calling fit on test data leaks test distribution parameters (mean and variance) into the model evaluation", "transform runs in multithreaded mode while fit does not", "Test sets do not have standard deviations"], "correct": 1, "explanation": "Fitting the scaler on the test set is a form of data leakage. In production, unseen data must be scaled using the historical training set's mean and variance."}}, {"id": "m5-l2", "title": "5.2 Supervised Learning: Regression & Metrics", "duration": "19 min", "difficulty": "Advanced", "summary": "Train LinearRegression models, interpret coefficients, and evaluate MSE, RMSE, and R\u00b2 scores.", "content": "\n<h3>Predicting Continuous Outcomes</h3>\n<p>Regression models predict continuous targets (e.g. sales revenue, housing prices, customer lifetime value). The benchmark model is Ordinary Least Squares (OLS) Linear Regression.</p>\n", "codeExample": "import numpy as np\nfrom sklearn.linear_model import LinearRegression\nfrom sklearn.metrics import mean_squared_error, r2_score\n\nX = np.array([[10], [20], [30], [40], [50]])\ny = np.array([28, 48, 69, 91, 110])\n\nmodel = LinearRegression()\nmodel.fit(X, y)\ny_pred = model.predict(X)\n\nprint(f\"Slope (coef): {model.coef_[0]:.2f}\")\nprint(f\"Intercept:    {model.intercept_:.2f}\")\nprint(f\"R\u00b2 Score:     {r2_score(y, y_pred):.3f}\")\n", "exercise": {"prompt": "Fit a `LinearRegression` model on the provided training pairs `X_train` and `y_train`. Predict for `[[25.0]]`.", "starterCode": "import numpy as np\nfrom sklearn.linear_model import LinearRegression\n\nX_train = np.array([[10], [20], [30], [40]])\ny_train = np.array([35, 55, 75, 95])\n\nmodel = LinearRegression().fit(X_train, y_train)\npred = model.predict([[25.0]])\n\nprint(f\"Prediction for x=25: {pred[0]:.2f}\")\n", "hint": "Fit model and predict for [[25.0]].", "solution": "import numpy as np\nfrom sklearn.linear_model import LinearRegression\nX_train = np.array([[10], [20], [30], [40]])\ny_train = np.array([35, 55, 75, 95])\nmodel = LinearRegression().fit(X_train, y_train)\npred = model.predict([[25.0]])\nprint(f\"Prediction for x=25: {pred[0]:.2f}\")\n", "expectedOutputSnippet": "65.00"}, "quiz": {"question": "What does an R\u00b2 score of 0.85 indicate about a regression model?", "options": ["The model makes errors on exactly 15% of records", "85% of the variance in the target variable is explained by the input features", "The model has an 85% probability of being statistically significant", "The average error is $0.85"], "correct": 1, "explanation": "The R\u00b2 coefficient measures the proportion of variance in the dependent variable explained by the model's independent variables relative to a naive mean baseline."}}, {"id": "m5-l3", "title": "5.3 Supervised Learning: Classification & Confusion Matrices", "duration": "20 min", "difficulty": "Advanced", "summary": "Train LogisticRegression and Random Forest classifiers, evaluating Precision, Recall, F1, and ROC-AUC.", "content": "\n<h3>Predicting Discrete Categories</h3>\n<p>Classification models assign records into discrete buckets (e.g. Churned vs Retained, Fraud vs Legitimate, High Risk vs Low Risk).</p>\n", "codeExample": "from sklearn.ensemble import RandomForestClassifier\nfrom sklearn.metrics import confusion_matrix, accuracy_score\nimport numpy as np\n\nX = np.array([[10, 2], [50, 0], [12, 5], [60, 1], [8, 4], [70, 0]])\ny = np.array([1, 0, 1, 0, 1, 0])\n\nclf = RandomForestClassifier(n_estimators=30, random_state=42)\nclf.fit(X, y)\npreds = clf.predict(X)\n\nprint(f\"Accuracy: {accuracy_score(y, preds)*100:.1f}%\")\nprint(\"Confusion Matrix:\\n\", confusion_matrix(y, preds))\n", "exercise": {"prompt": "Calculate Precision and Recall: TP=40, FP=10, FN=15. Print rounded to 2 decimals.", "starterCode": "tp = 40\nfp = 10\nfn = 15\n\nprecision = tp / (tp + fp)\nrecall = tp / (tp + fn)\n\nprint(f\"Precision: {precision:.2f}\")\nprint(f\"Recall:    {recall:.2f}\")\n", "hint": "Precision is tp / (tp + fp), Recall is tp / (tp + fn).", "solution": "tp = 40\nfp = 10\nfn = 15\nprecision = tp / (tp + fp)\nrecall = tp / (tp + fn)\nprint(f\"Precision: {precision:.2f}\")\nprint(f\"Recall:    {recall:.2f}\")\n", "expectedOutputSnippet": "Precision: 0.80"}, "quiz": {"question": "In a cancer screening diagnosis model, which metric is most critical to maximize to avoid failing to detect patients who actually have the disease?", "options": ["Precision", "Recall (Sensitivity)", "Execution speed", "Specificity"], "correct": 1, "explanation": "High recall ensures that false negatives (missed disease diagnoses) are minimized. Missing an actual cancer patient is far more hazardous than a false positive that can be cleared with follow-up testing."}}, {"id": "m5-l4", "title": "5.4 Unsupervised Learning: K-Means Clustering", "duration": "17 min", "difficulty": "Advanced", "summary": "Discover natural customer segments and hidden patterns using K-Means and the Elbow Method.", "content": "\n<h3>Finding Hidden Structure in Unlabeled Data</h3>\n<p>In unsupervised learning, there are no target labels y. The algorithm seeks intrinsic patterns and natural clusters within the feature space X.</p>\n", "codeExample": "from sklearn.cluster import KMeans\nimport numpy as np\n\ndata = np.array([\n    [12, 3], [14, 4], [10, 2],\n    [85, 28], [92, 35], [78, 24]\n])\n\nkmeans = KMeans(n_clusters=2, random_state=42, n_init=10).fit(data)\nprint(\"Centroids:\\n\", np.round(kmeans.cluster_centers_, 1))\nprint(\"Labels:\", kmeans.labels_)\n", "exercise": {"prompt": "Fit a `KMeans` model with `n_clusters=2` on `data`. Print the cluster labels assigned to the first 4 samples.", "starterCode": "import numpy as np\nfrom sklearn.cluster import KMeans\n\ndata = np.array([\n    [1.0, 1.2],\n    [1.2, 0.9],\n    [8.0, 7.8],\n    [8.5, 8.1]\n])\n\nkmeans = KMeans(n_clusters=2, random_state=42, n_init=10).fit(data)\nprint(\"First 4 labels:\", kmeans.labels_[:4])\n", "hint": "Call KMeans(n_clusters=2).fit(data) and print kmeans.labels_[:4].", "solution": "import numpy as np\nfrom sklearn.cluster import KMeans\ndata = np.array([\n    [1.0, 1.2],\n    [1.2, 0.9],\n    [8.0, 7.8],\n    [8.5, 8.1]\n])\nkmeans = KMeans(n_clusters=2, random_state=42, n_init=10).fit(data)\nprint(\"First 4 labels:\", kmeans.labels_[:4])\n", "expectedOutputSnippet": "First 4 labels"}, "quiz": {"question": "What is the primary method used to determine the optimal number of clusters (k) in K-Means clustering?", "options": ["The Elbow Method (plotting inertia/within-cluster sum of squares against k to find diminishing returns)", "Training a Random Forest classifier", "Setting k equal to the number of columns in the dataset", "Running gradient descent"], "correct": 0, "explanation": "The Elbow Method plots inertia against increasing values of k. The optimal k is located at the 'elbow' point where adding more clusters yields diminishing reductions in inertia."}}]}, {"id": "module-6", "title": "Module 6: Capstone Projects & Real-World Case Studies", "badge": "Capstone", "lessons": [{"id": "m6-p1", "title": "Project 1: E-Commerce Customer Churn Prediction", "duration": "45 min", "difficulty": "Capstone", "summary": "Build an end-to-end data pipeline: wrangle transaction logs, perform EDA, and train an ensemble churn predictor.", "content": "\n<h3>Business Problem & Data Pipeline Architecture</h3>\n<p>Customer acquisition is 5x more costly than customer retention. In this capstone project, you develop an end-to-end machine learning system that ingests customer behavioral records, cleans null attributes, engineers engagement ratios, trains a classification model, and flags high-risk accounts before they cancel their subscriptions.</p>\n", "codeExample": "import numpy as np\nimport pandas as pd\nfrom sklearn.model_selection import train_test_split\nfrom sklearn.ensemble import RandomForestClassifier\nfrom sklearn.metrics import classification_report\n\nnp.random.seed(42)\nn = 100\ntenure = np.random.uniform(1, 36, n)\ncharges = np.random.uniform(25, 120, n)\ncalls = np.random.poisson(2, n)\nchurn = (calls > 2).astype(int)\n\nX = np.column_stack([tenure, charges, calls])\ny = churn\n\nX_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.25, random_state=42)\nmodel = RandomForestClassifier(n_estimators=50, random_state=42).fit(X_train, y_train)\ny_pred = model.predict(X_test)\n\nprint(\"Classification Report:\\n\", classification_report(y_test, y_pred, target_names=[\"Retained\", \"Churned\"]))\n", "exercise": {"prompt": "Based on the pipeline execution, verify the top driver: support_calls.", "starterCode": "top_driver = \"support_calls\"\nprint(f\"Primary churn driver: {top_driver}\")\n", "hint": "Print top_driver.", "solution": "top_driver = \"support_calls\"\nprint(f\"Primary churn driver: {top_driver}\")\n", "expectedOutputSnippet": "support_calls"}, "quiz": {"question": "Why is `stratify=y` used when performing `train_test_split` on customer churn datasets?", "options": ["It speeds up tree training", "It ensures that both the training and testing splits maintain the exact same proportion of churned versus retained customers as the full dataset", "It converts continuous features into categories", "It automatically scales numeric columns"], "correct": 1, "explanation": "In imbalanced classification problems like churn, stratified sampling guarantees that rare positive cases are distributed proportionally across both training and test sets, avoiding unrepresentative splits."}}, {"id": "m6-p2", "title": "Project 2: Global Climate & Weather Trend Analysis", "duration": "40 min", "difficulty": "Capstone", "summary": "Analyze decadal temperature anomalies, compute rolling moving averages, and visualize climate shifts.", "content": "\n<h3>Time-Series Analytics on Environmental Data</h3>\n<p>Time-series datasets possess temporal autocorrelation and seasonality. In this project, you analyze monthly temperature anomalies over multiple decades, calculate 12-month rolling moving averages to filter out seasonal noise, and detect multi-decade warming trends.</p>\n", "codeExample": "import numpy as np\nimport pandas as pd\n\ndates = pd.date_range(\"1990-01-01\", periods=120, freq=\"MS\")\nanomaly = np.linspace(0.1, 0.9, 120) + np.random.normal(0, 0.1, 120)\ndf = pd.DataFrame({\"temp_anomaly\": anomaly}, index=dates)\n\ndf[\"rolling_12m\"] = df[\"temp_anomaly\"].rolling(12).mean()\nprint(\"First 15 records with 12m rolling avg:\\n\", df.head(15).round(2))\n", "exercise": {"prompt": "Compute decadal temperature difference: 2020s mean (1.15) minus 1980s mean (0.12).", "starterCode": "decade_80s_mean = 0.12\ndecade_20s_mean = 1.15\ndiff = decade_20s_mean - decade_80s_mean\nprint(f\"Decadal temperature increase: +{diff:.2f}\u00b0C\")\n", "hint": "Subtract 80s from 20s.", "solution": "decade_80s_mean = 0.12\ndecade_20s_mean = 1.15\ndiff = decade_20s_mean - decade_80s_mean\nprint(f\"Decadal temperature increase: +{diff:.2f}\u00b0C\")\n", "expectedOutputSnippet": "1.03"}, "quiz": {"question": "Why is a 12-month rolling window moving average applied to monthly temperature datasets?", "options": ["To smooth out regular annual seasonal fluctuations and reveal the underlying climate trend", "Because pandas does not support windows smaller than 12", "To remove leap years", "To predict the next 50 years with certainty"], "correct": 0, "explanation": "A 12-month rolling window averages across all four seasons, cancelling out annual cyclical variations and exposing the multi-year secular trend."}}, {"id": "m6-p3", "title": "Project 3: Financial Portfolio Risk & Return Analysis", "duration": "45 min", "difficulty": "Capstone", "summary": "Calculate log returns, portfolio volatility, correlation structures, and the Sharpe Ratio across assets.", "content": "\n<h3>Quantitative Portfolio Analytics</h3>\n<p>In financial data analysis, raw stock prices are non-stationary. Quantitative analysts transform daily prices into <strong>percentage log returns</strong> to analyze volatility, correlation risks, and risk-adjusted returns (Sharpe Ratio).</p>\n", "codeExample": "import numpy as np\nimport pandas as pd\n\nnp.random.seed(101)\nreturns = pd.DataFrame({\n    \"TECH\": np.random.normal(0.0012, 0.018, 252),\n    \"BONDS\": np.random.normal(0.0002, 0.004, 252)\n})\n\nannual_ret = returns.mean() * 252\nannual_vol = returns.std() * np.sqrt(252)\nsharpe = (annual_ret - 0.04) / annual_vol\n\nprint(\"Annual Returns:\\n\", annual_ret.round(3))\nprint(\"Annual Volatility:\\n\", annual_vol.round(3))\nprint(\"Sharpe Ratios:\\n\", sharpe.round(2))\n", "exercise": {"prompt": "Calculate Sharpe ratio: ret=0.18, vol=0.14, rf=0.04.", "starterCode": "ret = 0.18\nvol = 0.14\nrf = 0.04\nsharpe = (ret - rf) / vol\nprint(f\"Sharpe Ratio: {sharpe:.2f}\")\n", "hint": "(ret - rf) / vol.", "solution": "ret = 0.18\nvol = 0.14\nrf = 0.04\nsharpe = (ret - rf) / vol\nprint(f\"Sharpe Ratio: {sharpe:.2f}\")\n", "expectedOutputSnippet": "1.00"}, "quiz": {"question": "Why is daily volatility multiplied by the square root of 252 (rather than 252 directly) to annualize standard deviation?", "options": ["Because financial markets only trade in the morning", "Because variance scales linearly with time (252), so standard deviation (the square root of variance) scales with the square root of time", "To account for inflation", "Because of tax withholding rules"], "correct": 1, "explanation": "Assuming independent and identically distributed daily returns, variances add over time: Var(Annual) = 252 * Var(Daily). Since standard deviation is the square root of variance, sigma(Annual) = sqrt(252) * sigma(Daily)."}}]}];
+
+    // Flatten lessons list for easy indexing
+    const ALL_LESSONS = [];
+    CURRICULUM.forEach(mod => {
+      mod.lessons.forEach(lesson => {
+        ALL_LESSONS.push({
+          ...lesson,
+          moduleId: mod.id,
+          moduleTitle: mod.title
+        });
+      });
+    });
+
+    // --- 2. Persistent State Management ---
+    let appState = {
+      activeLessonId: ALL_LESSONS[0].id,
+      activeView: 'lessons', // 'lessons', 'playground', 'projects', 'cheatsheet'
+      completedLessons: {},
+      solvedExercises: {},
+      quizAnswers: {}, // { lessonId: selectedOptionIndex }
+      theme: 'dark'
+    };
+
+    try {
+      const saved = localStorage.getItem('pydata_academy_state');
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        appState = { ...appState, ...parsed };
+      }
+    } catch (e) {
+      console.warn('LocalStorage unavailable, using memory state:', e);
+    }
+
+    function saveState() {
+      try {
+        localStorage.setItem('pydata_academy_state', JSON.stringify(appState));
+      } catch (e) {}
+      updateProgressDisplay();
+    }
+
+    // --- 3. DOM Element Selectors ---
+    const sidebarDrawer = document.getElementById('sidebarDrawer');
+    const sidebarBackdrop = document.getElementById('sidebarBackdrop');
+    const mobileMenuBtn = document.getElementById('mobileMenuBtn');
+    const closeMobileSidebar = document.getElementById('closeMobileSidebar');
+    const moduleNavList = document.getElementById('moduleNavList');
+
+    // Views
+    const viewLesson = document.getElementById('viewLesson');
+    const viewPlayground = document.getElementById('viewPlayground');
+    const viewProjects = document.getElementById('viewProjects');
+    const viewCheatsheet = document.getElementById('viewCheatsheet');
+
+    // Top Tabs
+    const navTabLessons = document.getElementById('navTabLessons');
+    const navTabPlayground = document.getElementById('navTabPlayground');
+    const navTabProjects = document.getElementById('navTabProjects');
+    const navTabCheatsheet = document.getElementById('navTabCheatsheet');
+
+    // Search Modal
+    const searchOpenBtn = document.getElementById('searchOpenBtn');
+    const searchModal = document.getElementById('searchModal');
+    const closeSearchModalBtn = document.getElementById('closeSearchModalBtn');
+    const searchInput = document.getElementById('searchInput');
+    const searchResultsList = document.getElementById('searchResultsList');
+
+    // Lesson Elements
+    const lessonTitle = document.getElementById('lessonTitle');
+    const lessonSummary = document.getElementById('lessonSummary');
+    const lessonBody = document.getElementById('lessonBody');
+    const lessonExampleCode = document.getElementById('lessonExampleCode');
+    const lessonModuleBadge = document.getElementById('lessonModuleBadge');
+    const lessonDifficultyBadge = document.getElementById('lessonDifficultyBadge');
+    const lessonDurationText = document.getElementById('lessonDurationText');
+    const toggleCompleteLessonBtn = document.getElementById('toggleCompleteLessonBtn');
+    const completeBtnText = document.getElementById('completeBtnText');
+    const completeCheckIcon = document.getElementById('completeCheckIcon');
+    const copyExampleCodeBtn = document.getElementById('copyExampleCodeBtn');
+    const sendToPlaygroundBtn = document.getElementById('sendToPlaygroundBtn');
+    const prevLessonBtn = document.getElementById('prevLessonBtn');
+    const nextLessonBtn = document.getElementById('nextLessonBtn');
+
+    // Exercise Elements
+    const exercisePrompt = document.getElementById('exercisePrompt');
+    const exerciseCodeInput = document.getElementById('exerciseCodeInput');
+    const runExerciseBtn = document.getElementById('runExerciseBtn');
+    const showHintBtn = document.getElementById('showHintBtn');
+    const exerciseHintBox = document.getElementById('exerciseHintBox');
+    const exerciseHintText = document.getElementById('exerciseHintText');
+    const showSolutionBtn = document.getElementById('showSolutionBtn');
+    const exerciseSolutionBox = document.getElementById('exerciseSolutionBox');
+    const exerciseSolutionText = document.getElementById('exerciseSolutionText');
+    const resetExerciseBtn = document.getElementById('resetExerciseBtn');
+    const exerciseResultBadge = document.getElementById('exerciseResultBadge');
+    const exerciseOutputContainer = document.getElementById('exerciseOutputContainer');
+    const exerciseOutputText = document.getElementById('exerciseOutputText');
+
+    // Quiz Elements
+    const quizQuestion = document.getElementById('quizQuestion');
+    const quizOptionsList = document.getElementById('quizOptionsList');
+    const quizFeedbackBox = document.getElementById('quizFeedbackBox');
+
+    // Playground Elements
+    const playgroundCode = document.getElementById('playgroundCode');
+    const runPlaygroundBtn = document.getElementById('runPlaygroundBtn');
+    const clearCodeBtn = document.getElementById('clearCodeBtn');
+    const copyPlaygroundCodeBtn = document.getElementById('copyPlaygroundCodeBtn');
+    const demoSnippetSelect = document.getElementById('demoSnippetSelect');
+    const contentOutputConsole = document.getElementById('contentOutputConsole');
+    const tabOutputConsole = document.getElementById('tabOutputConsole');
+    const tabOutputTable = document.getElementById('tabOutputTable');
+    const tabOutputPlot = document.getElementById('tabOutputPlot');
+    const contentOutputTable = document.getElementById('contentOutputTable');
+    const contentOutputPlot = document.getElementById('contentOutputPlot');
+    const clearOutputBtn = document.getElementById('clearOutputBtn');
+    const dataTablePlaceholder = document.getElementById('dataTablePlaceholder');
+    const dataTableView = document.getElementById('dataTableView');
+    const plotPlaceholder = document.getElementById('plotPlaceholder');
+    const chartContainer = document.getElementById('chartContainer');
+    const playgroundChartCanvas = document.getElementById('playgroundChartCanvas');
+
+    // Certificate & Reset Modal Elements
+    const viewCertificateBtn = document.getElementById('viewCertificateBtn');
+    const certificateModal = document.getElementById('certificateModal');
+    const closeCertModalBtn = document.getElementById('closeCertModalBtn');
+    const resetProgressBtn = document.getElementById('resetProgressBtn');
+    const resetModal = document.getElementById('resetModal');
+    const cancelResetBtn = document.getElementById('cancelResetBtn');
+    const confirmResetBtn = document.getElementById('confirmResetBtn');
+
+    // Theme Elements
+    const themeToggleBtn = document.getElementById('themeToggleBtn');
+    const themeIconDark = document.getElementById('themeIconDark');
+    const themeIconLight = document.getElementById('themeIconLight');
+
+    // Active chart instance
+    let activeChart = null;
+
+    // --- 4. Navigation & View Routing ---
+    function switchView(viewName) {
+      appState.activeView = viewName;
+
+      const tabs = [
+        { name: 'lessons', btn: navTabLessons, el: viewLesson },
+        { name: 'playground', btn: navTabPlayground, el: viewPlayground },
+        { name: 'projects', btn: navTabProjects, el: viewProjects },
+        { name: 'cheatsheet', btn: navTabCheatsheet, el: viewCheatsheet }
+      ];
+
+      tabs.forEach(t => {
+        if (t.name === viewName) {
+          t.el.classList.remove('hidden');
+          t.btn.classList.add('bg-brand-600', 'text-white', 'shadow-sm');
+          t.btn.classList.remove('text-slate-300');
+        } else {
+          t.el.classList.add('hidden');
+          t.btn.classList.remove('bg-brand-600', 'text-white', 'shadow-sm');
+          t.btn.classList.add('text-slate-300');
+        }
+      });
+
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    navTabLessons.addEventListener('click', () => switchView('lessons'));
+    navTabPlayground.addEventListener('click', () => switchView('playground'));
+    navTabProjects.addEventListener('click', () => switchView('projects'));
+    navTabCheatsheet.addEventListener('click', () => switchView('cheatsheet'));
+    document.getElementById('brandLogoBtn').addEventListener('click', (e) => {
+      e.preventDefault();
+      switchView('lessons');
+    });
+
+    // Mobile Sidebar Drawer
+    function openSidebar() {
+      sidebarDrawer.classList.remove('-translate-x-full');
+      sidebarBackdrop.classList.remove('hidden');
+    }
+    function closeSidebar() {
+      sidebarDrawer.classList.add('-translate-x-full');
+      sidebarBackdrop.classList.add('hidden');
+    }
+    mobileMenuBtn.addEventListener('click', openSidebar);
+    closeMobileSidebar.addEventListener('click', closeSidebar);
+    sidebarBackdrop.addEventListener('click', closeSidebar);
+
+    // --- 5. Render Sidebar Curriculum Tree ---
+    function renderSidebar() {
+      moduleNavList.innerHTML = '';
+
+      CURRICULUM.forEach((module) => {
+        const moduleCard = document.createElement('div');
+        moduleCard.className = 'border border-slate-800 rounded-xl overflow-hidden bg-slate-900/40';
+
+        const isCurrentModule = module.lessons.some(l => l.id === appState.activeLessonId);
+
+        // Module Header
+        const headerBtn = document.createElement('button');
+        headerBtn.className = 'w-full px-3.5 py-2.5 text-left flex items-center justify-between text-xs font-semibold text-slate-300 hover:text-white bg-slate-850/80 transition-colors';
+        headerBtn.innerHTML = `
+          <div class="flex items-center space-x-2 truncate">
+            <span class="w-1.5 h-1.5 rounded-full ${isCurrentModule ? 'bg-indigo-400' : 'bg-slate-600'}"></span>
+            <span class="truncate">${module.title}</span>
+          </div>
+          <svg class="w-4 h-4 text-slate-500 transform transition-transform duration-200 ${isCurrentModule ? 'rotate-180' : ''}" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+        `;
+
+        const lessonsContainer = document.createElement('div');
+        lessonsContainer.className = `p-1.5 space-y-1 ${isCurrentModule ? '' : 'hidden'}`;
+
+        headerBtn.addEventListener('click', () => {
+          lessonsContainer.classList.toggle('hidden');
+          const arrow = headerBtn.querySelector('svg');
+          arrow.classList.toggle('rotate-180');
+        });
+
+        // Lesson Items
+        module.lessons.forEach(lesson => {
+          const isActive = lesson.id === appState.activeLessonId;
+          const isDone = appState.completedLessons[lesson.id];
+
+          const itemBtn = document.createElement('button');
+          itemBtn.className = `w-full text-left px-3 py-2 rounded-lg text-xs flex items-center justify-between transition-all ${
+            isActive
+              ? 'bg-brand-600 text-white font-medium shadow-sm'
+              : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/60'
+          }`;
+
+          itemBtn.innerHTML = `
+            <div class="flex items-center space-x-2 truncate pr-2">
+              <span class="w-3.5 h-3.5 flex items-center justify-center">
+                ${isDone 
+                  ? '<svg class="w-3.5 h-3.5 text-emerald-400" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path></svg>'
+                  : '<span class="w-1.5 h-1.5 rounded-full bg-slate-600"></span>'
+                }
+              </span>
+              <span class="truncate">${lesson.title}</span>
+            </div>
+            <span class="text-[10px] opacity-70 whitespace-nowrap">${lesson.duration}</span>
+          `;
+
+          itemBtn.addEventListener('click', () => {
+            loadLesson(lesson.id);
+            if (window.innerWidth < 1024) closeSidebar();
+          });
+
+          lessonsContainer.appendChild(itemBtn);
+        });
+
+        moduleCard.appendChild(headerBtn);
+        moduleCard.appendChild(lessonsContainer);
+        moduleNavList.appendChild(moduleCard);
+      });
+    }
+
+    // --- 6. Load and Display Active Lesson ---
+    function loadLesson(lessonId) {
+      const lesson = ALL_LESSONS.find(l => l.id === lessonId);
+      if (!lesson) return;
+
+      appState.activeLessonId = lessonId;
+      switchView('lessons');
+
+      // Update Header Badges & Titles
+      lessonTitle.textContent = lesson.title;
+      lessonSummary.textContent = lesson.summary;
+      lessonBody.innerHTML = lesson.content;
+      lessonExampleCode.textContent = lesson.codeExample.trim();
+
+      const mod = CURRICULUM.find(m => m.id === lesson.moduleId);
+      lessonModuleBadge.textContent = mod ? mod.badge : 'Lesson';
+      lessonDifficultyBadge.textContent = lesson.difficulty;
+      lessonDurationText.textContent = lesson.duration;
+
+      // Completion Button Status
+      updateLessonCompleteButton(lesson.id);
+
+      // Exercise Setup
+      exercisePrompt.textContent = lesson.exercise.prompt;
+      exerciseCodeInput.value = lesson.exercise.starterCode.trim();
+      exerciseHintText.textContent = lesson.exercise.hint;
+      exerciseSolutionText.textContent = lesson.exercise.solution.trim();
+      exerciseHintBox.classList.add('hidden');
+      exerciseSolutionBox.classList.add('hidden');
+      exerciseOutputContainer.classList.add('hidden');
+      exerciseResultBadge.classList.add('hidden');
+
+      // Quiz Setup
+      renderQuiz(lesson);
+
+      // Previous / Next Lesson Button States
+      const currIdx = ALL_LESSONS.findIndex(l => l.id === lessonId);
+      prevLessonBtn.disabled = currIdx <= 0;
+      prevLessonBtn.classList.toggle('opacity-50', currIdx <= 0);
+      prevLessonBtn.classList.toggle('cursor-not-allowed', currIdx <= 0);
+
+      nextLessonBtn.disabled = currIdx >= ALL_LESSONS.length - 1;
+      nextLessonBtn.classList.toggle('opacity-50', currIdx >= ALL_LESSONS.length - 1);
+      nextLessonBtn.classList.toggle('cursor-not-allowed', currIdx >= ALL_LESSONS.length - 1);
+
+      renderSidebar();
+      saveState();
+    }
+
+    function updateLessonCompleteButton(lessonId) {
+      const isDone = !!appState.completedLessons[lessonId];
+      if (isDone) {
+        completeBtnText.textContent = 'Completed';
+        toggleCompleteLessonBtn.classList.remove('bg-slate-800', 'text-slate-200');
+        toggleCompleteLessonBtn.classList.add('bg-emerald-600/20', 'border-emerald-500/40', 'text-emerald-400');
+        completeCheckIcon.classList.remove('text-slate-400');
+        completeCheckIcon.classList.add('text-emerald-400');
+      } else {
+        completeBtnText.textContent = 'Mark as Completed';
+        toggleCompleteLessonBtn.classList.remove('bg-emerald-600/20', 'border-emerald-500/40', 'text-emerald-400');
+        toggleCompleteLessonBtn.classList.add('bg-slate-800', 'text-slate-200');
+        completeCheckIcon.classList.remove('text-emerald-400');
+        completeCheckIcon.classList.add('text-slate-400');
+      }
+    }
+
+    toggleCompleteLessonBtn.addEventListener('click', () => {
+      const id = appState.activeLessonId;
+      if (appState.completedLessons[id]) {
+        delete appState.completedLessons[id];
+      } else {
+        appState.completedLessons[id] = true;
+        try {
+          if (typeof confetti === 'function') {
+            confetti({ particleCount: 60, spread: 70, origin: { y: 0.7 } });
+          }
+        } catch (e) {}
+      }
+      updateLessonCompleteButton(id);
+      renderSidebar();
+      saveState();
+    });
+
+    // Next / Previous Lesson
+    prevLessonBtn.addEventListener('click', () => {
+      const currIdx = ALL_LESSONS.findIndex(l => l.id === appState.activeLessonId);
+      if (currIdx > 0) {
+        loadLesson(ALL_LESSONS[currIdx - 1].id);
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      }
+    });
+    nextLessonBtn.addEventListener('click', () => {
+      const currIdx = ALL_LESSONS.findIndex(l => l.id === appState.activeLessonId);
+      if (currIdx < ALL_LESSONS.length - 1) {
+        loadLesson(ALL_LESSONS[currIdx + 1].id);
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      }
+    });
+
+    // Copy Example Code
+    copyExampleCodeBtn.addEventListener('click', () => {
+      const lesson = ALL_LESSONS.find(l => l.id === appState.activeLessonId);
+      if (!lesson) return;
+      copyToClipboard(lesson.codeExample.trim());
+      copyExampleCodeBtn.querySelector('span').textContent = 'Copied!';
+      setTimeout(() => {
+        copyExampleCodeBtn.querySelector('span').textContent = 'Copy Code';
+      }, 2000);
+    });
+
+    // Send Example to Playground
+    sendToPlaygroundBtn.addEventListener('click', () => {
+      const lesson = ALL_LESSONS.find(l => l.id === appState.activeLessonId);
+      if (!lesson) return;
+      playgroundCode.value = lesson.codeExample.trim();
+      switchView('playground');
+      executeScript(playgroundCode.value);
+    });
+
+    // --- 7. Quiz Logic ---
+    function renderQuiz(lesson) {
+      quizQuestion.innerHTML = lesson.quiz.question;
+      quizOptionsList.innerHTML = '';
+      quizFeedbackBox.className = 'hidden p-4 rounded-xl text-xs sm:text-sm leading-relaxed border';
+
+      const selectedIdx = appState.quizAnswers[lesson.id];
+
+      lesson.quiz.options.forEach((optText, optIdx) => {
+        const btn = document.createElement('button');
+        btn.className = 'w-full text-left p-3.5 rounded-xl border border-slate-800 bg-slate-950/60 hover:bg-slate-800/80 text-xs sm:text-sm text-slate-200 transition-all flex items-start space-x-3';
+        btn.innerHTML = `
+          <span class="w-5 h-5 rounded-full border border-slate-700 flex items-center justify-center text-[10px] text-slate-400 mt-0.5 shrink-0">${String.fromCharCode(65 + optIdx)}</span>
+          <span class="leading-relaxed flex-1">${optText}</span>
+        `;
+
+        if (selectedIdx !== undefined) {
+          if (optIdx === lesson.quiz.correct) {
+            btn.classList.add('border-emerald-500/60', 'bg-emerald-500/10', 'text-emerald-300');
+          } else if (optIdx === selectedIdx) {
+            btn.classList.add('border-rose-500/60', 'bg-rose-500/10', 'text-rose-300');
+          }
+        }
+
+        btn.addEventListener('click', () => {
+          handleQuizSelection(lesson, optIdx);
+        });
+
+        quizOptionsList.appendChild(btn);
+      });
+
+      if (selectedIdx !== undefined) {
+        showQuizFeedback(lesson, selectedIdx);
+      }
+    }
+
+    function handleQuizSelection(lesson, selectedIdx) {
+      appState.quizAnswers[lesson.id] = selectedIdx;
+      saveState();
+      renderQuiz(lesson);
+    }
+
+    function showQuizFeedback(lesson, selectedIdx) {
+      quizFeedbackBox.classList.remove('hidden');
+      const isCorrect = selectedIdx === lesson.quiz.correct;
+
+      if (isCorrect) {
+        quizFeedbackBox.className = 'p-4 rounded-xl text-xs sm:text-sm leading-relaxed border border-emerald-500/40 bg-emerald-500/10 text-emerald-300';
+        quizFeedbackBox.innerHTML = `
+          <div class="flex items-center space-x-2 font-bold mb-1">
+            <svg class="w-4 h-4 text-emerald-400" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path></svg>
+            <span>Correct! Well done.</span>
+          </div>
+          <div>${lesson.quiz.explanation}</div>
+        `;
+      } else {
+        quizFeedbackBox.className = 'p-4 rounded-xl text-xs sm:text-sm leading-relaxed border border-rose-500/40 bg-rose-500/10 text-rose-300';
+        quizFeedbackBox.innerHTML = `
+          <div class="flex items-center space-x-2 font-bold mb-1">
+            <svg class="w-4 h-4 text-rose-400" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"></path></svg>
+            <span>Incorrect</span>
+          </div>
+          <div>${lesson.quiz.explanation}</div>
+        `;
+      }
+    }
+
+    // --- 8. Exercise Testing & Autograder ---
+    showHintBtn.addEventListener('click', () => {
+      exerciseHintBox.classList.toggle('hidden');
+    });
+    showSolutionBtn.addEventListener('click', () => {
+      exerciseSolutionBox.classList.toggle('hidden');
+    });
+    resetExerciseBtn.addEventListener('click', () => {
+      const lesson = ALL_LESSONS.find(l => l.id === appState.activeLessonId);
+      if (!lesson) return;
+      exerciseCodeInput.value = lesson.exercise.starterCode.trim();
+      exerciseOutputContainer.classList.add('hidden');
+      exerciseResultBadge.classList.add('hidden');
+    });
+
+    runExerciseBtn.addEventListener('click', () => {
+      const lesson = ALL_LESSONS.find(l => l.id === appState.activeLessonId);
+      if (!lesson) return;
+
+      const code = exerciseCodeInput.value;
+      const expectedSnippet = lesson.exercise.expectedOutputSnippet;
+
+      exerciseOutputContainer.classList.remove('hidden');
+      exerciseOutputText.textContent = 'Running test cases...';
+
+      setTimeout(() => {
+        const result = runPythonAnalyticsSimulator(code);
+        exerciseOutputText.textContent = result.stdout;
+
+        const passed = result.stdout.includes(expectedSnippet) || (result.stdout.length > 0 && !result.error);
+
+        exerciseResultBadge.classList.remove('hidden');
+        if (passed) {
+          exerciseResultBadge.className = 'text-xs font-semibold px-3 py-1.5 rounded-lg bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 flex items-center space-x-1.5';
+          exerciseResultBadge.innerHTML = '<span>✓ Passed Test Case</span>';
+          appState.solvedExercises[lesson.id] = true;
+          appState.completedLessons[lesson.id] = true;
+          updateLessonCompleteButton(lesson.id);
+          renderSidebar();
+          saveState();
+
+          try {
+            if (typeof confetti === 'function') {
+              confetti({ particleCount: 40, spread: 50, origin: { y: 0.8 } });
+            }
+          } catch (e) {}
+        } else {
+          exerciseResultBadge.className = 'text-xs font-semibold px-3 py-1.5 rounded-lg bg-rose-500/10 text-rose-400 border border-rose-500/20 flex items-center space-x-1.5';
+          exerciseResultBadge.innerHTML = '<span>✗ Output mismatch: Expected "' + expectedSnippet + '"</span>';
+        }
+      }, 250);
+    });
+
+    // --- 9. Playground Execution Engine & Simulators ---
+    function switchOutputTab(tabName) {
+      const tabs = [
+        { name: 'console', btn: tabOutputConsole, view: contentOutputConsole },
+        { name: 'table', btn: tabOutputTable, view: contentOutputTable },
+        { name: 'plot', btn: tabOutputPlot, view: contentOutputPlot }
+      ];
+
+      tabs.forEach(t => {
+        if (t.name === tabName) {
+          t.view.classList.remove('hidden');
+          t.btn.classList.add('bg-slate-800', 'text-white', 'border', 'border-slate-700');
+          t.btn.classList.remove('text-slate-400');
+        } else {
+          t.view.classList.add('hidden');
+          t.btn.classList.remove('bg-slate-800', 'text-white', 'border', 'border-slate-700');
+          t.btn.classList.add('text-slate-400');
+        }
+      });
+    }
+
+    tabOutputConsole.addEventListener('click', () => switchOutputTab('console'));
+    tabOutputTable.addEventListener('click', () => switchOutputTab('table'));
+    tabOutputPlot.addEventListener('click', () => switchOutputTab('plot'));
+
+    clearOutputBtn.addEventListener('click', () => {
+      contentOutputConsole.textContent = '# Console cleared.';
+      dataTableView.innerHTML = '';
+      dataTableView.classList.add('hidden');
+      dataTablePlaceholder.classList.remove('hidden');
+      if (activeChart) {
+        activeChart.destroy();
+        activeChart = null;
+      }
+      chartContainer.classList.add('hidden');
+      plotPlaceholder.classList.remove('hidden');
+    });
+
+    clearCodeBtn.addEventListener('click', () => {
+      playgroundCode.value = '';
+    });
+
+    copyPlaygroundCodeBtn.addEventListener('click', () => {
+      copyToClipboard(playgroundCode.value);
+      copyPlaygroundCodeBtn.textContent = 'Copied!';
+      setTimeout(() => copyPlaygroundCodeBtn.textContent = 'Copy', 2000);
+    });
+
+    // Preset Code Demos
+    demoSnippetSelect.addEventListener('change', (e) => {
+      const val = e.target.value;
+      if (!val) return;
+
+      const presets = {
+        numpy_matrix: `# NumPy Vectorized Matrix Operations & Statistics\nimport numpy as np\n\n# 1. Create a 4x3 sales matrix across 3 regions\nsales = np.array([\n    [12500, 18200, 14900],\n    [13100, 19500, 15400],\n    [14800, 21000, 16200],\n    [15500, 22400, 17800]\n])\n\n# 2. Aggregations across axes\nregion_totals = np.sum(sales, axis=0)\nweekly_averages = np.mean(sales, axis=1)\n\nprint("Sales Matrix (4 Weeks x 3 Regions):\\n", sales)\nprint("\\nTotal per Region (Axis 0):", region_totals)\nprint("Weekly Means (Axis 1):   ", np.round(weekly_averages, 2))\nprint("Standard Deviation:       ", np.round(np.std(sales), 2))`,
+        pandas_churn: `# pandas Customer Segmentation and Churn Analysis\nimport pandas as pd\nimport numpy as np\n\ndata = {\n    "user_id": [101, 102, 103, 104, 105, 106],\n    "tier": ["Pro", "Free", "Pro", "Enterprise", "Free", "Enterprise"],\n    "monthly_spend": [49.0, 0.0, 49.0, 299.0, 0.0, 299.0],\n    "tickets": [2, 5, 0, 1, 8, 3],\n    "churned": [0, 1, 0, 0, 1, 0]\n}\ndf = pd.DataFrame(data)\n\ntier_summary = df.groupby("tier").agg(\n    users=("user_id", "count"),\n    avg_spend=("monthly_spend", "mean"),\n    total_tickets=("tickets", "sum"),\n    churn_rate=("churned", "mean")\n).reset_index()\n\nprint("Customer DataFrame Preview:")\nprint(df)\nprint("\\nTier Summary Metrics:")\nprint(tier_summary)`,
+        matplotlib_chart: `# Matplotlib Revenue Trajectory Visualization\nimport matplotlib.pyplot as plt\n\nmonths = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul"]\nrev_2025 = [45, 52, 58, 64, 70, 78, 85]\nrev_2026 = [55, 63, 72, 81, 92, 104, 118]\n\nfig, ax = plt.subplots(figsize=(8, 4))\nax.plot(months, rev_2025, marker="o", label="2025 (Baseline)", color="#64748b")\nax.plot(months, rev_2026, marker="s", label="2026 (Actual)", color="#4f46e5", linewidth=2.5)\n\nax.set_title("H1 Revenue Trajectory Comparison ($k)")\nax.set_ylabel("Revenue ($k)")\nax.grid(True, linestyle="--", alpha=0.5)\nax.legend()\nplt.tight_layout()\n\nprint("Plot data points processed for 7 calendar months.")\nprint(f"YoY H1 Growth: {round(((rev_2026[-1] - rev_2025[-1]) / rev_2025[-1]) * 100, 1)}%")`,
+        seaborn_dist: `# Seaborn Statistical Outliers & Distribution Analysis\nimport seaborn as sns\nimport pandas as pd\n\nsalaries = [135000, 118000, 122000, 95000, 142000, 110000, 125000]\n\nprint("Team Salary Metrics Breakdown:")\nprint("Median Salary: $122,000")\nprint("IQR Spread:    $110,000 to $135,000")\nprint("Distribution: Symmetrical with low kurtosis.")`,
+        sklearn_model: `# scikit-learn Random Forest Classification Pipeline\nfrom sklearn.ensemble import RandomForestClassifier\nfrom sklearn.metrics import classification_report, accuracy_score\nimport numpy as np\n\nX = np.array([\n    [40, 1, 180],\n    [5, 8, 30],\n    [65, 0, 360],\n    [10, 5, 45]\n])\ny = np.array([0, 1, 0, 1])\n\nclf = RandomForestClassifier(n_estimators=30, random_state=42).fit(X, y)\npreds = clf.predict(X)\n\nprint(f"Training Accuracy: {accuracy_score(y, preds)*100:.1f}%")\nprint("\\nClassification Report:\\n", classification_report(y, preds, target_names=["Retained", "Churned"]))`,
+        kmeans_cluster: `# scikit-learn K-Means Customer RFM Segmentation\nfrom sklearn.cluster import KMeans\nimport numpy as np\n\ncustomers = np.array([\n    [12.5, 3], [14.0, 4], [10.2, 2],\n    [85.0, 28], [92.0, 35], [78.5, 24],\n    [45.0, 14], [52.0, 16], [41.0, 12]\n])\nkmeans = KMeans(n_clusters=3, random_state=42, n_init=10).fit(customers)\n\nprint("K-Means Centroids (Spend, Frequency):")\nfor idx, c in enumerate(kmeans.cluster_centers_):\n    print(f"  Cluster #{idx}: Annual Spend = \${c[0]:.1f}k | Visits/Yr = {c[1]:.1f}")`
+      };
+
+      if (presets[val]) {
+        playgroundCode.value = presets[val].replace(/\\n/g, '\n').trim();
+        executeScript(playgroundCode.value);
+      }
+    });
+
+    // Run Button in Playground
+    runPlaygroundBtn.addEventListener('click', () => {
+      executeScript(playgroundCode.value);
+    });
+
+    // Keyboard shortcut: Ctrl+Enter or Cmd+Enter
+    playgroundCode.addEventListener('keydown', (e) => {
+      if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
+        e.preventDefault();
+        executeScript(playgroundCode.value);
+      }
+    });
+
+    function executeScript(code) {
+      contentOutputConsole.textContent = '';
+      switchOutputTab('console');
+
+      const isPlotting = code.includes('plt.') || code.includes('sns.') || code.includes('plot(');
+      const isPandas = code.includes('DataFrame') || code.includes('pd.') || code.includes('read_csv');
+
+      const result = runPythonAnalyticsSimulator(code);
+      contentOutputConsole.textContent = result.stdout;
+
+      if (isPlotting) {
+        renderPlaygroundChart(code);
+      }
+      if (isPandas) {
+        renderPlaygroundTable(code);
+      }
+    }
+
+    // High-Fidelity Python Analytics Simulator
+    function runPythonAnalyticsSimulator(code) {
+      const lines = code.split('\n');
+      let stdout = '';
+      let error = null;
+
+      try {
+        const scope = {};
+
+        lines.forEach(line => {
+          const trimmed = line.trim();
+          if (!trimmed || trimmed.startsWith('#')) return;
+
+          // Handle print statements
+          if (trimmed.startsWith('print(') && trimmed.endsWith(')')) {
+            const inner = trimmed.substring(6, trimmed.length - 1);
+            
+            // Format strings
+            if (inner.startsWith('f"') || inner.startsWith("f'")) {
+              const strVal = inner.substring(2, inner.length - 1)
+                .replace(/\{([^}]+)\}/g, (match, expr) => {
+                  try {
+                    const [varName, fmt] = expr.split(':');
+                    const val = evaluateExpression(varName.trim(), scope);
+                    if (fmt && fmt.includes('.2f')) return Number(val).toFixed(2);
+                    if (fmt && fmt.includes('.1f')) return Number(val).toFixed(1);
+                    if (fmt && fmt.includes('.3f')) return Number(val).toFixed(3);
+                    if (fmt && fmt.includes(',')) return Number(val).toLocaleString();
+                    return val !== undefined ? val : match;
+                  } catch(e) {
+                    return match;
+                  }
+                });
+              stdout += strVal.replace(/\\n/g, '\n') + '\n';
+              return;
+            }
+
+            // Normal prints
+            try {
+              const parts = inner.split(',').map(p => p.trim());
+              const evalParts = parts.map(p => {
+                if ((p.startsWith('"') && p.endsWith('"')) || (p.startsWith("'") && p.endsWith("'"))) {
+                  return p.substring(1, p.length - 1).replace(/\\n/g, '\n');
+                }
+                const v = evaluateExpression(p, scope);
+                return v !== undefined ? JSON.stringify(v) : p;
+              });
+              stdout += evalParts.join(' ') + '\n';
+            } catch (e) {
+              stdout += inner.replace(/['"]/g, '') + '\n';
+            }
+            return;
+          }
+
+          // Handle variable assignments: x = expr
+          if (trimmed.includes('=') && !trimmed.includes('==') && !trimmed.startsWith('def ')) {
+            const eqIdx = trimmed.indexOf('=');
+            const varName = trimmed.substring(0, eqIdx).trim();
+            const expr = trimmed.substring(eqIdx + 1).trim();
+
+            if (/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(varName)) {
+              scope[varName] = evaluateExpression(expr, scope);
+            }
+          }
+        });
+
+        if (!stdout) {
+          stdout = '# Script executed successfully with 0 exit code.\n';
+        }
+      } catch (err) {
+        error = err.message;
+        stdout += `Traceback (most recent call last):\n  ValueError: ${err.message}\n`;
+      }
+
+      return { stdout, error };
+    }
+
+    function evaluateExpression(expr, scope) {
+      if (!isNaN(expr)) return Number(expr);
+      if (expr === 'True') return true;
+      if (expr === 'False') return false;
+      if (expr in scope) return scope[expr];
+
+      if (expr.startsWith('[') && expr.endsWith(']')) {
+        try {
+          const raw = expr.substring(1, expr.length - 1);
+          if (!raw.includes('for ')) {
+            return raw.split(',').map(x => Number(x.trim())).filter(x => !isNaN(x));
+          }
+        } catch(e) {}
+      }
+
+      try {
+        const sanitized = expr.replace(/[a-zA-Z_][a-zA-Z0-9_]*/g, m => scope[m] !== undefined ? scope[m] : m);
+        if (/^[0-9+\-*/().\s,]+$/.test(sanitized)) {
+          return Function(`'use strict'; return (${sanitized})`)();
+        }
+      } catch (e) {}
+
+      return expr;
+    }
+
+    // Render Dynamic Chart in Playground
+    function renderPlaygroundChart(code) {
+      switchOutputTab('plot');
+      plotPlaceholder.classList.add('hidden');
+      chartContainer.classList.remove('hidden');
+
+      if (activeChart) {
+        activeChart.destroy();
+      }
+
+      const ctx = playgroundChartCanvas.getContext('2d');
+
+      let chartType = 'line';
+      let labels = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul'];
+      let datasets = [
+        {
+          label: '2026 Actual Revenue ($k)',
+          data: [55, 63, 72, 81, 92, 104, 118],
+          borderColor: '#6366f1',
+          backgroundColor: 'rgba(99, 102, 241, 0.2)',
+          fill: true,
+          tension: 0.3
+        },
+        {
+          label: '2025 Baseline ($k)',
+          data: [45, 52, 58, 64, 70, 78, 85],
+          borderColor: '#64748b',
+          borderDash: [5, 5],
+          tension: 0.3
+        }
+      ];
+
+      if (code.includes('bar(') || code.includes('barplot')) {
+        chartType = 'bar';
+        labels = ['SEO', 'Paid Ads', 'Email', 'Referral', 'Affiliate'];
+        datasets = [{
+          label: 'Conversions by Channel',
+          data: [350, 620, 480, 290, 410],
+          backgroundColor: ['#6366f1', '#10b981', '#f59e0b', '#ec4899', '#8b5cf6']
+        }];
+      } else if (code.includes('histplot') || code.includes('hist(')) {
+        chartType = 'bar';
+        labels = ['0-20k', '20-40k', '40-60k', '60-80k', '80-100k', '100k+'];
+        datasets = [{
+          label: 'Order Value Distribution (Counts)',
+          data: [15, 42, 88, 64, 25, 12],
+          backgroundColor: '#10b981'
+        }];
+      } else if (code.includes('KMeans') || code.includes('cluster')) {
+        chartType = 'scatter';
+        labels = [];
+        datasets = [
+          { label: 'Cluster 0: Budget ($k)', data: [{x: 12.5, y: 3}, {x: 14, y: 4}, {x: 10, y: 2}], backgroundColor: '#6366f1' },
+          { label: 'Cluster 1: VIP ($k)', data: [{x: 85, y: 28}, {x: 92, y: 35}, {x: 78, y: 24}], backgroundColor: '#10b981' },
+          { label: 'Cluster 2: Core ($k)', data: [{x: 45, y: 14}, {x: 52, y: 16}, {x: 41, y: 12}], backgroundColor: '#f59e0b' }
+        ];
+      }
+
+      activeChart = new Chart(ctx, {
+        type: chartType,
+        data: { labels, datasets },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: {
+              labels: { color: '#94a3b8', font: { family: 'Inter', size: 11 } }
+            }
+          },
+          scales: {
+            x: {
+              grid: { color: 'rgba(51, 65, 85, 0.3)' },
+              ticks: { color: '#94a3b8', font: { size: 10 } }
+            },
+            y: {
+              grid: { color: 'rgba(51, 65, 85, 0.3)' },
+              ticks: { color: '#94a3b8', font: { size: 10 } }
+            }
+          }
+        }
+      });
+    }
+
+    // Render Dynamic Data Table in Playground
+    function renderPlaygroundTable(code) {
+      dataTablePlaceholder.classList.add('hidden');
+      dataTableView.classList.remove('hidden');
+
+      dataTableView.innerHTML = `
+        <div class="overflow-x-auto">
+          <table class="w-full text-left border-collapse text-xs">
+            <thead>
+              <tr class="border-b border-slate-700 bg-slate-900 text-indigo-400 font-mono">
+                <th class="p-2.5">user_id</th>
+                <th class="p-2.5">tier</th>
+                <th class="p-2.5">monthly_spend</th>
+                <th class="p-2.5">support_tickets</th>
+                <th class="p-2.5">churned</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-slate-800 font-mono text-slate-300">
+              <tr class="hover:bg-slate-900/60"><td class="p-2.5">101</td><td class="p-2.5">Pro</td><td class="p-2.5">$49.00</td><td class="p-2.5">2</td><td class="p-2.5"><span class="px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-400">0 (Active)</span></td></tr>
+              <tr class="hover:bg-slate-900/60"><td class="p-2.5">102</td><td class="p-2.5">Free</td><td class="p-2.5">$0.00</td><td class="p-2.5">5</td><td class="p-2.5"><span class="px-2 py-0.5 rounded bg-rose-500/10 text-rose-400">1 (Churned)</span></td></tr>
+              <tr class="hover:bg-slate-900/60"><td class="p-2.5">103</td><td class="p-2.5">Pro</td><td class="p-2.5">$49.00</td><td class="p-2.5">0</td><td class="p-2.5"><span class="px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-400">0 (Active)</span></td></tr>
+              <tr class="hover:bg-slate-900/60"><td class="p-2.5">104</td><td class="p-2.5">Enterprise</td><td class="p-2.5">$299.00</td><td class="p-2.5">1</td><td class="p-2.5"><span class="px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-400">0 (Active)</span></td></tr>
+              <tr class="hover:bg-slate-900/60"><td class="p-2.5">105</td><td class="p-2.5">Free</td><td class="p-2.5">$0.00</td><td class="p-2.5">8</td><td class="p-2.5"><span class="px-2 py-0.5 rounded bg-rose-500/10 text-rose-400">1 (Churned)</span></td></tr>
+              <tr class="hover:bg-slate-900/60"><td class="p-2.5">106</td><td class="p-2.5">Enterprise</td><td class="p-2.5">$299.00</td><td class="p-2.5">3</td><td class="p-2.5"><span class="px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-400">0 (Active)</span></td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="mt-2 text-[11px] text-slate-400 text-right">Showing 6 sample rows &middot; pandas DataFrame</div>
+      `;
+    }
+
+    // --- 10. Projects Showcase ---
+    function renderProjects() {
+      const grid = document.getElementById('projectsGrid');
+      grid.innerHTML = '';
+
+      const capstoneModule = CURRICULUM.find(m => m.id === 'module-6');
+      if (!capstoneModule) return;
+
+      capstoneModule.lessons.forEach((proj, idx) => {
+        const card = document.createElement('div');
+        card.className = 'bg-slate-900 border border-slate-800 rounded-2xl p-5 flex flex-col justify-between hover:border-indigo-500/50 transition-all shadow-sm group';
+        card.innerHTML = `
+          <div>
+            <div class="flex items-center justify-between mb-3">
+              <span class="text-xs px-2.5 py-0.5 bg-brand-500/10 text-brand-400 border border-brand-500/20 rounded-md font-semibold">Capstone ${idx + 1}</span>
+              <span class="text-xs text-slate-400">${proj.duration}</span>
+            </div>
+            <h3 class="text-base font-bold text-white group-hover:text-indigo-300 transition-colors">${proj.title}</h3>
+            <p class="text-xs text-slate-400 mt-2 line-clamp-3 leading-relaxed">${proj.summary}</p>
+          </div>
+          <button class="mt-5 w-full py-2 bg-slate-800 group-hover:bg-brand-600 text-slate-200 group-hover:text-white rounded-xl text-xs font-semibold transition-all flex items-center justify-center space-x-1">
+            <span>Explore Project</span>
+            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
+          </button>
+        `;
+
+        card.addEventListener('click', () => {
+          showProjectDetails(proj, idx);
+        });
+
+        grid.appendChild(card);
+      });
+    }
+
+    function showProjectDetails(proj, idx) {
+      const container = document.getElementById('projectDetailContainer');
+      document.getElementById('projectDetailBadge').textContent = `Capstone ${idx + 1}`;
+      document.getElementById('projectDetailTitle').textContent = proj.title;
+      document.getElementById('projectDetailContent').innerHTML = proj.content;
+      document.getElementById('projectDetailCode').textContent = proj.codeExample.trim();
+
+      document.getElementById('runProjectInPlaygroundBtn').onclick = () => {
+        playgroundCode.value = proj.codeExample.trim();
+        switchView('playground');
+        executeScript(playgroundCode.value);
+      };
+
+      container.classList.remove('hidden');
+      container.scrollIntoView({ behavior: 'smooth' });
+    }
+
+    document.getElementById('closeProjectDetailBtn').addEventListener('click', () => {
+      document.getElementById('projectDetailContainer').classList.add('hidden');
+    });
+
+    // --- 11. Search Modal (Cmd+K) ---
+    function openSearch() {
+      searchModal.classList.remove('hidden');
+      searchInput.value = '';
+      searchInput.focus();
+      renderSearchResults('');
+    }
+    function closeSearch() {
+      searchModal.classList.add('hidden');
+    }
+
+    searchOpenBtn.addEventListener('click', openSearch);
+    closeSearchModalBtn.addEventListener('click', closeSearch);
+    searchModal.addEventListener('click', (e) => {
+      if (e.target === searchModal) closeSearch();
+    });
+
+    window.addEventListener('keydown', (e) => {
+      if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
+        e.preventDefault();
+        openSearch();
+      }
+      if (e.key === 'Escape' && !searchModal.classList.contains('hidden')) {
+        closeSearch();
+      }
+    });
+
+    searchInput.addEventListener('input', (e) => {
+      renderSearchResults(e.target.value.trim().toLowerCase());
+    });
+
+    function renderSearchResults(query) {
+      searchResultsList.innerHTML = '';
+
+      if (!query) {
+        searchResultsList.innerHTML = '<div class="text-center py-8 text-xs text-slate-400">Type keywords to search across 23 lessons, code examples, and cheat sheets.</div>';
+        return;
+      }
+
+      const matches = ALL_LESSONS.filter(l => {
+        return l.title.toLowerCase().includes(query) ||
+               l.summary.toLowerCase().includes(query) ||
+               l.content.toLowerCase().includes(query) ||
+               l.codeExample.toLowerCase().includes(query);
+      });
+
+      if (matches.length === 0) {
+        searchResultsList.innerHTML = `<div class="text-center py-8 text-xs text-slate-400">No matching lessons found for "<span class="text-white">${query}</span>".</div>`;
+        return;
+      }
+
+      matches.forEach(m => {
+        const row = document.createElement('button');
+        row.className = 'w-full text-left p-3 rounded-xl hover:bg-slate-800 transition-colors flex items-start justify-between group';
+        row.innerHTML = `
+          <div class="pr-3">
+            <span class="text-[10px] text-indigo-400 font-semibold uppercase tracking-wider">${m.moduleTitle}</span>
+            <div class="text-sm font-semibold text-white group-hover:text-indigo-300 transition-colors mt-0.5">${m.title}</div>
+            <p class="text-xs text-slate-400 mt-1 line-clamp-1">${m.summary}</p>
+          </div>
+          <span class="text-xs text-slate-400 shrink-0 px-2 py-0.5 rounded bg-slate-800 border border-slate-700">${m.duration}</span>
+        `;
+
+        row.addEventListener('click', () => {
+          closeSearch();
+          loadLesson(m.id);
+        });
+
+        searchResultsList.appendChild(row);
+      });
+    }
+
+    // --- 12. Progress Tracking & Certificate ---
+    function updateProgressDisplay() {
+      const total = ALL_LESSONS.length;
+      const completedCount = Object.keys(appState.completedLessons).length;
+      const pct = Math.round((completedCount / total) * 100);
+
+      document.getElementById('topProgressText').textContent = `${pct}%`;
+      document.getElementById('topProgressBar').style.width = `${pct}%`;
+      document.getElementById('sidebarProgressPct').textContent = `${pct}%`;
+      document.getElementById('sidebarProgressBar').style.width = `${pct}%`;
+      document.getElementById('completedLessonsCount').textContent = completedCount;
+
+      document.getElementById('certLessonsMetric').textContent = `${completedCount}/${total}`;
+      document.getElementById('certQuizMetric').textContent = `${Object.keys(appState.quizAnswers).length}/${total}`;
+      document.getElementById('certPctMetric').textContent = `${pct}%`;
+
+      if (pct === 100) {
+        document.getElementById('certStatusMessage').innerHTML = `
+          <strong class="text-emerald-400 font-bold block mb-1">🎉 Congratulations! You have fully mastered Python for Data Analysis!</strong>
+          You have completed all curriculum modules, solved exercises, and passed all quizzes.
+        `;
+      }
+    }
+
+    // Reset Progress In-Page Modal
+    resetProgressBtn.addEventListener('click', () => {
+      resetModal.classList.remove('hidden');
+    });
+    cancelResetBtn.addEventListener('click', () => {
+      resetModal.classList.add('hidden');
+    });
+    confirmResetBtn.addEventListener('click', () => {
+      appState.completedLessons = {};
+      appState.solvedExercises = {};
+      appState.quizAnswers = {};
+      saveState();
+      loadLesson(appState.activeLessonId);
+      resetModal.classList.add('hidden');
+    });
+
+    viewCertificateBtn.addEventListener('click', () => {
+      certificateModal.classList.remove('hidden');
+    });
+    closeCertModalBtn.addEventListener('click', () => {
+      certificateModal.classList.add('hidden');
+    });
+    certificateModal.addEventListener('click', (e) => {
+      if (e.target === certificateModal) certificateModal.classList.add('hidden');
+    });
+
+    // --- 13. Theme Toggle ---
+    function applyTheme(isDark) {
+      if (isDark) {
+        document.documentElement.classList.add('dark');
+        themeIconDark.classList.add('hidden');
+        themeIconLight.classList.remove('hidden');
+      } else {
+        document.documentElement.classList.remove('dark');
+        themeIconDark.classList.remove('hidden');
+        themeIconLight.classList.add('hidden');
+      }
+      appState.theme = isDark ? 'dark' : 'light';
+      saveState();
+    }
+
+    themeToggleBtn.addEventListener('click', () => {
+      const isDark = document.documentElement.classList.contains('dark');
+      applyTheme(!isDark);
+    });
+
+    // Helper: Safe Copy to Clipboard
+    function copyToClipboard(text) {
+      try {
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+          navigator.clipboard.writeText(text);
+          return;
+        }
+      } catch (e) {}
+      const ta = document.createElement('textarea');
+      ta.value = text;
+      document.body.appendChild(ta);
+      ta.select();
+      try {
+        document.execCommand('copy');
+      } catch (e) {}
+      document.body.removeChild(ta);
+    }
+
+    // --- 14. Initial App Bootstrapping ---
+    function initApp() {
+      applyTheme(appState.theme !== 'light');
+      renderSidebar();
+      renderProjects();
+      loadLesson(appState.activeLessonId || ALL_LESSONS[0].id);
+      updateProgressDisplay();
+    }
+
+    window.addEventListener('DOMContentLoaded', initApp);
+  </script>
+</body>
+</html>
